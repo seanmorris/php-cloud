@@ -11,9 +11,9 @@ export async function onRequest(context) {
         instantiateWasm(imports, receive) {
             console.log(imports);
             console.log(receive);
-            const {instance} = WebAssembly.instantiate(bytes, imports);
-            receive(instance);
-            return instance.exports;
+            // const {instance} = WebAssembly.instantiate(bytes, imports);
+            // receive(instance);
+            // return instance.exports;
         },
     });
 
