@@ -1,6 +1,7 @@
-import { PhpWeb } from '../PhpWeb.mjs';
+import { PhpBase } from '../PhpBase.mjs';
+// import { PhpWeb } from '../PhpWeb.mjs';
 export function onRequest(context) {
-    const php = new PhpWeb;
+    // const php = new PhpWeb;
     return new Promise((accept, reject) => {
         let output = '';
         let error = '';
