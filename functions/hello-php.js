@@ -9,7 +9,9 @@ export async function onRequest(context) {
 
     const php = new PhpWeb({locateFile: (file, prefix) => {
         console.log({file, prefix});
-        return `https://php-cloud.pages.dev/${file}`;
+        const url = `https://php-cloud.pages.dev/${file}`;
+        console.log({url});
+        return url;
     }});
 
     // php.addEventListener('output', (event) => output += event.detail);
