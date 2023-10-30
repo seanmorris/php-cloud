@@ -6,18 +6,16 @@ export async function onRequest(context) {
 
     const response = await fetch('https://php-cloud.pages.dev/php-web.wasm');
     const bytes    = await response.arrayBuffer();
-
-    console.log(response);
     
-    // const php = new PhpWeb({
-    //     instantiateWasm(imports, receive) {
-    //         console.log(imports);
-    //         console.log(receive);
-    //         const {instance} = WebAssembly.instantiate(bytes, imports);
-    //         receive(instance);
-    //         return instance.exports;
-    //     },
-    // });
+    const php = new PhpWeb({
+        instantiateWasm(imports, receive) {
+            console.log(imports);
+            console.log(receive);
+            const {instance} = WebAssembly.instantiate(bytes, imports);
+            receive(instance);
+            return instance.exports;
+        },
+    });
 
     // php.addEventListener('output', (event) => output += event.detail);
     // php.addEventListener('error',  (event) => error  += event.detail);
