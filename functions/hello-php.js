@@ -12,6 +12,7 @@ export async function onRequest(context) {
         const url = `https://php-cloud.pages.dev/${file}`;
         fetch(url,{method:'OPTIONS'}).then(console.log);
         console.log({url});
+        return url;
     }});
 
     // php.addEventListener('output', (event) => output += event.detail);
