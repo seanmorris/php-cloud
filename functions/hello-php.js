@@ -10,7 +10,7 @@ export async function onRequest(context) {
     const php = new PhpWeb({locateFile: (file, prefix) => {
         console.log({file, prefix});
         const url = `https://php-cloud.pages.dev/${file}`;
-        fetch(url,{method:'OPTIONS'}).then(console.log);
+        await fetch(url,{method:'OPTIONS'}).then(console.log);
         console.log({url});
         return url;
     }});
