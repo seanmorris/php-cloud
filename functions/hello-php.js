@@ -6,9 +6,11 @@ export function onRequest(context) {
             instantiateWasm(info, receive) {
                 WebAssembly.instantiateStreaming(fetch('/php-web.wasm'), info)
                 .then(({instance}) => {
-                    receive(instance)
-                    return instance.exports;
+                    receive(instance);
                 });
+                // let instance = new WebAssembly.Instance(binary, info)
+                // receive(instance)
+                // return instance.exports
             },
         });
         let output = '';
