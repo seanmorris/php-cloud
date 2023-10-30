@@ -1,10 +1,10 @@
 import { PhpWeb } from '../PhpWeb.mjs';
-import { PhpWasm } from '../php-web.wasm';
+import { wasm } from '../php-web.wasm';
 export function onRequest(context) {
     return new Promise((accept, reject) => {
         const php = new PhpWeb({
             instantiateWasm(info, receive) {
-                let instance = new WebAssembly.Instance(PhpWasm, info)
+                let instance = new WebAssembly.Instance(wasm, info)
                 receive(instance)
                 return instance.exports
             },
