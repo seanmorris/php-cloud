@@ -16,7 +16,7 @@ export function onRequest(context) {
         });
         
         php.addEventListener('ready', () => {
-            php.run('<?php echo "Hello, world!";');
+            php.run('<?php echo "Hello, PHP!";');
         })
         .then(() => accept(output))
         .catch(() => reject(error));
