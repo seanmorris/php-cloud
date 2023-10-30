@@ -10,13 +10,11 @@ export async function onRequest(context) {
     const instantiateWasm = (imports, receive) => {
         console.log(imports);
         console.log(receive);
-        const {instance} = WebAssembly.instantiate(bytes, imports);
-        receive(instance);
-        return instance.exports;
+        const {instance, module} = WebAssembly.instantiate(bytes, imports);
+        receive(instance, module);
+        return {};
     };
 
-    instantiateWasm.uri = 'php-web.wasm';
-    
     const php = new PhpWeb({instantiateWasm});
 
     // php.addEventListener('output', (event) => output += event.detail);
