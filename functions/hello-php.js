@@ -1,22 +1,27 @@
 import { PhpWeb } from '../PhpWeb.mjs';
 
 export async function onRequest(context) {
-    let output = '';
-    let error  = '';
+    let output = 'undef';
+    let error  = 'undef';
 
     const response = await fetch('https://php-cloud.pages.dev/php-web.wasm');
     const buffer   = await response.arrayBuffer();
 
-    const php = new PhpWeb({buffer});
+    console.log(buffer);
 
-    php.addEventListener('output', (event) => output += event.detail);
-    php.addEventListener('error',  (event) => error  += event.detail);
+    // const php = new PhpWeb({buffer});
 
-    // php.addEventListener('ready', () => );
+    // php.addEventListener('output', (event) => output += event.detail);
+    // php.addEventListener('error',  (event) => error  += event.detail);
+
+    // // php.addEventListener('ready', () => );
     
-    await php.ready;
+    // await php.ready;
 
-    php.run('<?php echo "Hello, PHP!";');
+    output = '';
+    error = '';
+    
+    // php.run('<?php echo "Hello, PHP!";');
 
     return new Response(output);
 }
