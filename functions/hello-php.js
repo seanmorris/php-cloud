@@ -7,11 +7,12 @@ export async function onRequest(context) {
     const response = await fetch('https://php-cloud.pages.dev/php-web.wasm');
     const buffer   = await response.arrayBuffer();
 
-    const php = new PhpWeb({locateFile: (file, prefix) => {
+    const php = new PhpWeb({locateFile: async (file, prefix) => {
         console.log({file, prefix});
         const url = `https://php-cloud.pages.dev/${file}`;
-        fetch(url,{method:'OPTIONS'}).then(console.log);
         console.log({url});
+        const or = async fetch(url,{method:'OPTIONS'});
+        console.log(or);
         return url;
     }});
 
