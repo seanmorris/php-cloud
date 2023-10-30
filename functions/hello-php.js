@@ -4,7 +4,7 @@ export function onRequest(context) {
     return new Promise((accept, reject) => {
         const php = new PhpWeb({
             instantiateWasm(info, receive) {
-                WebAssembly.instantiateStreaming(fetch('https://php-cloud.pages.dev/hello-php'), info)
+                WebAssembly.instantiateStreaming(fetch('https://php-cloud.pages.dev/php-web.wasm'), info)
                 .then(({instance}) => {
                     receive(instance);
                 });
