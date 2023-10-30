@@ -8,10 +8,10 @@ export async function onRequest(context) {
     const bytes    = await response.arrayBuffer();
     
     const php = new PhpWeb({
-        async instantiateWasm(info, receive) {
-            const {instance, module} = WebAssembly.instantiate(bytes, info);
+        instantiateWasm(imports, receive) {
+            const {instance} = WebAssembly.instantiate(bytes, imports);
             receive(instance);
-            return instance.exports;
+            // return instance.exports;
         },
     });
 
