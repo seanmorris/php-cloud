@@ -1,12 +1,14 @@
 import { PhpWeb } from '../PhpWeb.mjs';
-import binary from '../php-web.wasm';
+// import binary from '../php-web.wasm';
 export function onRequest(context) {
     return new Promise((accept, reject) => {
         const php = new PhpWeb({
             instantiateWasm(info, receive) {
-                let instance = new WebAssembly.Instance(binary, info)
-                receive(instance)
-                return instance.exports
+                WebAssembly.instantiateStreaming(fetch('/php-web.wasm'), info)
+                .then(({instance}) => {
+                    receive(instance)
+                    return instance.exports;
+                });
             },
         });
         let output = '';
