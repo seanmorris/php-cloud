@@ -3,13 +3,17 @@ import { PhpWeb } from '../PhpWeb.mjs';
 export function onRequest(context) {
     return new Promise((accept, reject) => {
         const info = {};
-        WebAssembly
-        .instantiateStreaming(fetch('https://php-cloud.pages.dev/php-web.wasm'), info)
-        .then(({instance}) => {
+
+
+        fetch('https://php-cloud.pages.dev/php-web.wasm')
+        .then((response) => response.arrayBuffer())
+        .then((bytes) => WebAssembly.instantiate(bytes, importObject))
+        .then(({instance, module}) => {
+
             const php = new PhpWeb({
-                instantiateWasm(info, receive) {                
-                    receive(instance)
-                    return instance.exports
+                instantiateWasm(info, receive) {
+                    receive(instance);
+                    return instance.exports;
                 },
             });
             let output = '';
@@ -19,7 +23,7 @@ export function onRequest(context) {
             php.addEventListener('ready', () => php.run('<?php echo "Hello, PHP!";'))
             .then(() => accept(output))
             .catch(() => reject(error));
-            
+
         });
     });
 }
