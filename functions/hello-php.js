@@ -11,7 +11,7 @@ export async function onRequest(context) {
         console.log({file, prefix});
         const url = `https://php-cloud.pages.dev/${file}`;
         console.log({url});
-        const or = fetch(url,{method:'OPTIONS'});
+        const or = await fetch(url,{method:'OPTIONS'});
         console.log(or);
         return url;
     }});
