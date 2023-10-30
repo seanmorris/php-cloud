@@ -3,15 +3,14 @@ import { PhpWeb } from '../PhpWeb.mjs';
 export async function onRequest(context) {
     const php = new PhpWeb;
     return new Promise((accept, reject) => {
-
-        let output = '', error = '';
+        let output = '';
+        let error = '';
 
         php.addEventListener('output', (event) => {
             output += event.detail;
         });
 
         php.addEventListener('error', (event) => {
-            console.log(event.detail);
             error += event.detail;
         });
 
