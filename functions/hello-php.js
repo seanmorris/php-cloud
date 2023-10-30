@@ -5,11 +5,10 @@ export function onRequest(context) {
         const info = {};
 
 
-        fetch('https://php-cloud.pages.dev/php-web.wasm')
+        return fetch('https://php-cloud.pages.dev/php-web.wasm')
         .then((response) => response.arrayBuffer())
         .then((bytes) => WebAssembly.instantiate(bytes, importObject))
         .then(({instance, module}) => {
-
             const php = new PhpWeb({
                 instantiateWasm(info, receive) {
                     receive(instance);
@@ -20,7 +19,8 @@ export function onRequest(context) {
             let error = '';
             php.addEventListener('output', (event) => output += event.detail);
             php.addEventListener('error', (event) => error += event.detail);
-            php.addEventListener('ready', () => php.run('<?php echo "Hello, PHP!";'))
+            
+            return php.addEventListener('ready', () => php.run('<?php echo "Hello, PHP!";'))
             .then(() => accept(output))
             .catch(() => reject(error));
 
