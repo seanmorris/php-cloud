@@ -1,5 +1,6 @@
 import { PhpBase } from './PhpBase.mjs';
-import PhpBinary from './php-web.mjs';
+
+const PhpBinary = (await import('./php-web.mjs')).default;
 
 export class PhpWeb extends PhpBase
 {
