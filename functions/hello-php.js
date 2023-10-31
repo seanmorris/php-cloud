@@ -5,10 +5,10 @@ export async function onRequest(context) {
     let output = 'undef';
     let error  = 'undef';
 
-    console.log(wasmBinary);
-
     const response   = await fetch('https://php-cloud.pages.dev/php-web.wasm');
     const wasmBinary = await response.arrayBuffer();
+
+    console.log(wasmBinary);
 
     const php = new PhpWeb({
         wasmBinary,
