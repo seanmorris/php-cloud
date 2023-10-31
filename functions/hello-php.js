@@ -11,13 +11,13 @@ export async function onRequest(context) {
 
     const php = new PhpWeb({
         wasmBinary,
-        // locateFile: (file, prefix) => {
-        //     console.log({file, prefix});
-        //     const url = `https://php-cloud.pages.dev/${file}`;
-        //     fetch(url,{method:'OPTIONS'}).then
-        //     console.log({url});
-        //     return url;
-        // }
+        locateFile: (file, prefix) => {
+            console.log({file, prefix});
+            const url = `https://php-cloud.pages.dev/${file}`;
+            fetch(url,{method:'OPTIONS'}).then
+            console.log({url});
+            return url;
+        }
     });
 
     // php.addEventListener('output', (event) => output += event.detail);
