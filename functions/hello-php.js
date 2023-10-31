@@ -7,8 +7,8 @@ export async function onRequest(context) {
 
     console.log(wasmBinary);
 
-    // const response = await fetch('https://php-cloud.pages.dev/php-web.wasm');
-    // const buffer   = await response.arrayBuffer();
+    const response   = await fetch('https://php-cloud.pages.dev/php-web.wasm');
+    const wasmBinary = await response.arrayBuffer();
 
     const php = new PhpWeb({
         wasmBinary,
