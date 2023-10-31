@@ -1,5 +1,5 @@
 import { PhpWeb } from '../PhpWeb.mjs';
-import wasmBinary from '../php-web.wasm';
+// import wasmBinary from '../php-web.wasm';
 
 export async function onRequest(context) {
     let output = 'undef';
@@ -9,7 +9,7 @@ export async function onRequest(context) {
     // const buffer   = await response.arrayBuffer();
 
     const php = new PhpWeb({
-        wasmBinary,
+        // wasmBinary,
         locateFile: (file, prefix) => {
             console.log({file, prefix});
             const url = `https://php-cloud.pages.dev/${file}`;
