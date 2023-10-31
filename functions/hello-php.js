@@ -27,7 +27,7 @@ export async function onRequest(context) {
     output = '';
     error = '';
     
-    // php.run('<?php echo "Hello, PHP!";');
+    php.run('<?php echo "Hello, PHP!";');
 
     return new Response(output);
 }
