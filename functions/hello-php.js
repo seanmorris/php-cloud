@@ -10,7 +10,7 @@ export async function onRequest(context) {
     console.log(wasmBinary);
 
     const php = new PhpWeb({
-        wasmBinary,
+        // wasmBinary,
         locateFile: (file, prefix) => {
             console.log({file, prefix});
             const url = `https://php-cloud.pages.dev/${file}`;
