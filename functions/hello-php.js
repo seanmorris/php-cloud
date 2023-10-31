@@ -1,5 +1,5 @@
 import { PhpWeb } from '../PhpWeb.mjs';
-import wasmBinary from '../php-web.wasm';
+// import wasmBinary from '../php-web.wasm';
 
 export async function onRequest(context) {
     let output = 'undef';
