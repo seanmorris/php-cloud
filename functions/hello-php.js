@@ -1,15 +1,16 @@
 import { PhpWeb } from '../PhpWeb.mjs';
+import WasmBinary from '../php-web.wasm';
 
 export async function onRequest(context) {
     let output = 'undef';
     let error  = 'undef';
 
     const php = new PhpWeb({
-        locateFile: (file, prefix) => {
-            console.log({file, prefix});
-            const url = `https://php-cloud.pages.dev/${file}`;
-            console.log({url});
-        }
+        instantiateWasm(info, receive) {
+            let instance = new WebAssembly.Instance(WasmBinary, info)
+            receive(instance)
+            return instance.exports
+        },
     });
 
     php.addEventListener('output', (event) => output += event.detail);
