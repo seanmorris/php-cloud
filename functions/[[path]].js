@@ -6,12 +6,16 @@ export function onRequest(context) {
     globalThis.env = context.env;
     globalThis.all = async stmt => await stmt.all();
 
-    const _GET = {};
+    const _GET = {foo:123, bar:456};
+    
+    const url = new URL(context.request.url);
 
-    for (const [key, value] of new URL(context.request.url).searchParams)
-    {
-        _GET[key] = $value;
-    }
+    console.log(url, url.searchParams);
+
+    // for (const [key, value] of url.searchParams)
+    // {
+    //     _GET[key] = $value;
+    // }
 
     console.log(_GET);
     
