@@ -17,16 +17,29 @@ export function onRequest(context) {
         } 
     });
 
-    output = '';
-    error  = '';
+    const { readable, writable } = new TransformStream();
+
+	const writer  = writable.getWriter();
+	const encoder = new TextEncoder();
+
+    // output = '';
+    // error  = '';
     
     return php.binary.then(() =>{
-        php.addEventListener('output', (event) => output += event.detail);
-        php.addEventListener('error',  (event) => error  += event.detail);
+        // php.addEventListener('output', (event) => output += event.detail);
+        // php.addEventListener('error',  (event) => error  += event.detail);
+
+        const write = event => writer.write(encoder.encode(event.detail));
+
+        php.addEventListener('output', write);
+        php.addEventListener('error',  write);
         
-        return php.run('<?php phpinfo();');;
-    })
-    .then(() => {
-        return new Response(output);
+        context.waitUntil(php.run('<?php phpinfo();'));
+
+        return new Response(readable, {
+            status:       '200'
+            , statusText: 'OK'
+            , headers
+        });
     });
 }
