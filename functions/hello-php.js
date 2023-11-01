@@ -5,8 +5,6 @@ export async function onRequest(context) {
     let output = 'undef';
     let error  = 'undef';
 
-    console.log(WasmBinary);
-
     const php = new PhpWeb({
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
@@ -28,7 +26,9 @@ export async function onRequest(context) {
     php.addEventListener('output', (event) => output += event.detail);
     php.addEventListener('error',  (event) => error  += event.detail);
 
-    await new Promise(accept => php.addEventListener('ready', () => accept()));
+    const init = await new Promise(accept => php.addEventListener('ready', () => accept()));
+
+    console.log({init});
 
     php.run('<?php echo "Hello, PHP!";');
 
