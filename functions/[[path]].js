@@ -44,10 +44,14 @@ export function onRequest(context) {
     context.waitUntil(fetch('https://seanmorris.github.io/php-static/' + path)
     .then(r => r.text())
     .then(r => php.run(r)));
+
+    const headers = new Headers;
+
+    headers.set('content-type', 'text/html');
     
     return php.binary.then(() => new Response(readable, {
         status: '200',
         statusText: 'OK',
-        headers:{'content-type': 'text/html'}
+        headers
     }));
 }
