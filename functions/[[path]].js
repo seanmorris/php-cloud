@@ -8,12 +8,10 @@ export function onRequest(context) {
 
     const _GET = {};
 
-    console.log(context.request.url);
-
-    // for (const [key, value] of context.request.url.searchParams.entries())
-    // {
-    //     _GET[key] = $value;
-    // }
+    for (const [key, value] of new URL(context.request.url).searchParams)
+    {
+        _GET[key] = $value;
+    }
 
     console.log(_GET);
     
