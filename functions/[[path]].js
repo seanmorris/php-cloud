@@ -15,7 +15,7 @@ export function onRequest(context) {
     const db = context.env.db;
     
     const php = new PhpWeb({
-        _GET,
+        _GET, db,
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
             receive(instance)
