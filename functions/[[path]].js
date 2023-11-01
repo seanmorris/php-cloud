@@ -6,9 +6,17 @@ export function onRequest(context) {
     globalThis.env = context.env;
     globalThis.all = async stmt => await stmt.all();
 
-    console.log(globalThis.env);
+    const _GET = {};
+
+    for (const [key, value] of context.request.url.searchParams)
+    {
+        _GET[key] = $value;
+    }
+
+    console.log(_GET);
     
     const php = new PhpWeb({
+        _GET,
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
             receive(instance)
