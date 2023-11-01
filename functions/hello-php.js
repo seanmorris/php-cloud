@@ -35,7 +35,7 @@ export async function onRequest(context) {
     php.addEventListener('error',  (event) => error  += event.detail);
     
     php.addEventListener('ready', 
-        () => php.run('<?php echo "Hello, PHP!";').then(() => accept(new Response(output)))
+        () => php.run('<?php echo "Hello, PHP!";').then(() => resolvers.accept(new Response(output)))
     );
     
     return eventPromise;
