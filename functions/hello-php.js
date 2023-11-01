@@ -14,6 +14,12 @@ export async function onRequest(context) {
             console.log({WasmBinary, instance, info});
             return instance.exports
         },
+        locateFile: (file, prefix) => {
+            console.log({file, prefix});
+            const url = `https://php-cloud.pages.dev/${file}`;
+            console.log({url});
+            return url;
+        }
     });
 
     php.addEventListener('output', (event) => output += event.detail);
