@@ -20,18 +20,18 @@ export function onRequest(context) {
 	const writer  = writable.getWriter();
 	const encoder = new TextEncoder();
 
-    return php.binary.then(() =>{
-        const write = event => writer.write(encoder.encode(event.detail));
+    const write = event => writer.write(encoder.encode(event.detail));
 
-        php.addEventListener('output', write);
-        php.addEventListener('error',  write);
-        
-        context.waitUntil(php.run(`<?php echo ${JSON.stringify(context.params.path)};`));
-
-        return new Response(readable, {
-            status: '200',
-            statusText: 'OK',
-            'content-type': 'text/html'
-        });
-    });
+    php.addEventListener('output', write);
+    php.addEventListener('error',  write);
+    
+    context.waitUntil(php.run(
+        `<?php echo '${JSON.stringify(context.params.path)}';`
+    ));
+    
+    return php.binary.then(() => new Response(readable, {
+        status: '200',
+        statusText: 'OK',
+        'content-type': 'text/html'
+    }));
 }
