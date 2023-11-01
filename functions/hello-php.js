@@ -24,7 +24,7 @@ export function onRequest(context) {
         php.addEventListener('output', (event) => output += event.detail);
         php.addEventListener('error',  (event) => error  += event.detail);
         
-        return php.run('<?php echo "Hello, PHP!";');;
+        return php.run('<?php phpinfo();');;
     })
     .then(() => {
         return new Response(output);
