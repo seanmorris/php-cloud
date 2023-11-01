@@ -10,14 +10,10 @@ export function onRequest(context) {
     
     const url = new URL(context.request.url);
 
-    console.log(url, url.searchParams);
-
     for (const [key, value] of url.searchParams.entries())
     {
-        _GET[key] = $value;
+        _GET[key] = value;
     }
-
-    console.log(_GET);
     
     const php = new PhpWeb({
         _GET,
