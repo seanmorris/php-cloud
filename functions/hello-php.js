@@ -3,7 +3,7 @@ import WasmBinary from '../php-web.wasm';
 
 export function onRequest(context) {
 
-    globalThis._env = env;
+    globalThis.env = context.env;
     
     const php = new PhpWeb({
         instantiateWasm(info, receive) {
