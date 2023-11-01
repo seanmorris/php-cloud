@@ -25,14 +25,10 @@ export async function onRequest(context) {
     php.addEventListener('output', (event) => output += event.detail);
     php.addEventListener('error',  (event) => error  += event.detail);
 
-    // // php.addEventListener('ready', () => );
-    
-    await php.ready;
-
     output = '';
     error = '';
     
-    php.run('<?php echo "Hello, PHP!";');
-
-    return new Response(output);
+    return php.ready
+    .then(() => php.run('<?php echo "Hello, PHP!";'))
+    .then(() => new Response(output));
 }
