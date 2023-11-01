@@ -25,7 +25,7 @@ export function onRequest(context) {
     php.addEventListener('output', write);
     php.addEventListener('error',  write);
 
-    const path = context.params.path.filter(x=>x).length
+    const path = context.params.path
         ? context.params.path.join('/')
         : 'index.php';
 
