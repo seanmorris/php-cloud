@@ -22,13 +22,21 @@ export async function onRequest(context) {
         }
     });
 
+    const resolvers = {};
+    const eventPromise = new Promise((accept,reject) => {
+        resolvers.accept = accept;
+        resolvers.reject = reject;
+    });
+    
+    output = '';
+    error  = '';
+    
     php.addEventListener('output', (event) => output += event.detail);
     php.addEventListener('error',  (event) => error  += event.detail);
-
-    output = '';
-    error = '';
     
-    return php.ready
-    .then(() => php.run('<?php echo "Hello, PHP!";'))
-    .then(() => new Response(output));
+    php.addEventListener('ready', 
+        () => php.run('<?php echo "Hello, PHP!";').then(() => accept(new Response(output)))
+    );
+    
+    return eventPromise;
 }
