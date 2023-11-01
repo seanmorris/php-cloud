@@ -48,6 +48,6 @@ export function onRequest(context) {
     return php.binary.then(() => new Response(readable, {
         status: '200',
         statusText: 'OK',
-        'content-type': 'text/html'
+        headers:{'content-type': 'text/html'}
     }));
 }
