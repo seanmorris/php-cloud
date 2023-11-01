@@ -12,10 +12,10 @@ export function onRequest(context) {
 
     console.log(url, url.searchParams);
 
-    // for (const [key, value] of url.searchParams)
-    // {
-    //     _GET[key] = $value;
-    // }
+    for (const [key, value] of url.searchParams.entries())
+    {
+        _GET[key] = $value;
+    }
 
     console.log(_GET);
     
