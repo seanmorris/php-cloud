@@ -3,10 +3,7 @@ import WasmBinary from '../php-web.wasm';
 
 export function onRequest(context) {
 
-    globalThis.env = context.env;
-    globalThis.all = async stmt => await stmt.all();
-
-    const _GET = {foo:123, bar:456};
+    const _GET = {};
     
     const url = new URL(context.request.url);
 
@@ -14,6 +11,8 @@ export function onRequest(context) {
     {
         _GET[key] = value;
     }
+    
+    const db = context.env.db;
     
     const php = new PhpWeb({
         _GET,
