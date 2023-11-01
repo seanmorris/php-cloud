@@ -4,6 +4,7 @@ import WasmBinary from '../php-web.wasm';
 export function onRequest(context) {
 
     globalThis.env = context.env;
+    globalThis.all = async stmt => await stmt.all();
 
     console.log(globalThis.env);
     
