@@ -2,6 +2,8 @@ import { PhpWeb } from '../PhpWeb.mjs';
 import WasmBinary from '../php-web.wasm';
 
 export function onRequest(context) {
+
+    globalThis.env = env;
     
     const php = new PhpWeb({
         instantiateWasm(info, receive) {
@@ -12,7 +14,7 @@ export function onRequest(context) {
         locateFile: (file, prefix) => {
             const url = `https://php-cloud.pages.dev/${file}`;
             return url;
-        } 
+        }
     });
 
     const { readable, writable } = new TransformStream();
