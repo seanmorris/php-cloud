@@ -9,6 +9,7 @@ export async function onRequest(context) {
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
             receive(instance)
+            console.log(WasmBinary, instance, info);
             return instance.exports
         },
     });
