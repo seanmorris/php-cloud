@@ -2,9 +2,7 @@ import { PhpWeb } from '../PhpWeb.mjs';
 import WasmBinary from '../php-web.wasm';
 
 export function onRequest(context) {
-    let output = 'undef';
-    let error  = 'undef';
-
+    
     const php = new PhpWeb({
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
@@ -22,13 +20,7 @@ export function onRequest(context) {
 	const writer  = writable.getWriter();
 	const encoder = new TextEncoder();
 
-    // output = '';
-    // error  = '';
-    
     return php.binary.then(() =>{
-        // php.addEventListener('output', (event) => output += event.detail);
-        // php.addEventListener('error',  (event) => error  += event.detail);
-
         const write = event => writer.write(encoder.encode(event.detail));
 
         php.addEventListener('output', write);
@@ -36,6 +28,10 @@ export function onRequest(context) {
         
         context.waitUntil(php.run('<?php phpinfo();'));
 
-        return new Response(readable, {status: '200', statusText: 'OK', 'content-type': 'text/html'});
+        return new Response(readable, {
+            status: '200',
+            statusText: 'OK',
+            'content-type': 'text/html'
+        });
     });
 }
