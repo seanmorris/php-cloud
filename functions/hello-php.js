@@ -5,11 +5,13 @@ export async function onRequest(context) {
     let output = 'undef';
     let error  = 'undef';
 
+    console.log(WasmBinary);
+
     const php = new PhpWeb({
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
             receive(instance)
-            console.log(WasmBinary, instance, info);
+            console.log({WasmBinary, instance, info});
             return instance.exports
         },
     });
