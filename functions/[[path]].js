@@ -31,8 +31,7 @@ export function onRequest(context) {
 
     context.waitUntil(fetch('https://seanmorris.github.io/php-static/' + path)
     .then(r => r.text())
-    .then(r => writer.write(encoder.encode(r))));
-    // .then(php.run));
+    .then(r => php.run(r)));
     
     return php.binary.then(() => new Response(readable, {
         status: '200',
