@@ -20,7 +20,7 @@ export function onRequest(context) {
     output = '';
     error  = '';
     
-    php.binary.then(() =>{
+    return php.binary.then(() =>{
         php.addEventListener('output', (event) => output += event.detail);
         php.addEventListener('error',  (event) => error  += event.detail);
         
