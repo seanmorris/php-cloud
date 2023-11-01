@@ -24,10 +24,14 @@ export function onRequest(context) {
 
     php.addEventListener('output', write);
     php.addEventListener('error',  write);
-    
-    context.waitUntil(php.run(
-        `<?php echo '${JSON.stringify(context.params.path)}';`
-    ));
+
+    const path = context.params.path.length
+        ? context.params.path.join('/')
+        : 'index.php';
+
+    context.waitUntil(fetch('https://seanmorris.github.io/php-static/' + path)
+    .then(r => r.text())
+    .then(php.run));    
     
     return php.binary.then(() => new Response(readable, {
         status: '200',
