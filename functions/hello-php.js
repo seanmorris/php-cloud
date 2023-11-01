@@ -3,10 +3,6 @@ import WasmBinary from '../php-web.wasm';
 
 export function onRequest(context) {
 
-    globalThis.env = context.env;
-
-    console.log(globalThis.env);
-    
     const php = new PhpWeb({
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
