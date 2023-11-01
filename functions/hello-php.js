@@ -36,10 +36,6 @@ export function onRequest(context) {
         
         context.waitUntil(php.run('<?php phpinfo();'));
 
-        return new Response(readable, {
-            status:       '200'
-            , statusText: 'OK'
-            , headers
-        });
+        return new Response(readable, {status: '200', statusText: 'OK', 'content-type': 'text/html'});
     });
 }
