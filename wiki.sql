@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS WikiPages;
+
+CREATE TABLE IF NOT EXISTS WikiPages (
+	PageId INTEGER PRIMARY KEY,
+	PageTitle TEXT,
+	PageContent TEXT
+);

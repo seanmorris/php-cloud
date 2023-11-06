@@ -15,6 +15,21 @@ export async function onRequest(context)
 
 	const staticOrigin  = staticOrigins[url.origin];
     const fetchResource = fetch(staticOrigin + '/' + path);
+	const contentType   = String(context.request.headers.get("content-type"));
+
+	const _POST = {};
+
+	if(contentType.includes("form"))
+	{
+		const formData = await context.request.formData();
+
+		console.log('formdata', formData);
+
+		for(const entry of formData)
+		{
+			_POST[entry[0]] = entry[1];
+		}
+	}
 
     if('.php' !== path.substr(-4 + path.length, 4))
     {
@@ -31,8 +46,19 @@ export async function onRequest(context)
 
     const write = event => void writes.push(writer.write(encoder.encode(event.detail)));
 
+	const headers = new Headers;
+
+    headers.set('content-type', 'text/html');
+
+	const trigger = {};
+	const waiter = new Promise(accept => trigger.accept = accept);
+
     const php = new PhpWeb({
-        _GET, db,
+        _GET, _POST, db,
+		responseHeaders: headers,
+		trigger: trigger.accept,
+		staticOrigin,
+		origin: url.origin,
         locateFile: (file, prefix) => `${url.origin}/${prefix}${file}`,
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info);
@@ -53,11 +79,8 @@ export async function onRequest(context)
 
     context.waitUntil(runPhp);
 
-    // await runPhp;
-
-    const headers = new Headers;
-
-    headers.set('content-type', 'text/html');
+    // await Promise.race([runPhp, waiter]);
+	// console.log(runPhp, waiter);
 
     return new Response(readable, {
         status: '200',
