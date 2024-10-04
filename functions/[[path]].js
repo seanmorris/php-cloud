@@ -4,19 +4,20 @@ import WasmBinary from '../php-worker.mjs.wasm';
 const staticOrigins = {
 	'https://php-cloud.pages.dev':     'https://seanmorris.github.io/php-static',
 	'https://php-cloud-dev.pages.dev': 'https://seanmorris.github.io/php-static-dev',
-	'http://localhost:8788':           'https://seanmorris.github.io/php-static-dev',
-	// 'http://localhost:8788': 'http://localhost:8080',
+	// 'http://localhost:8788':        'https://seanmorris.github.io/php-static-dev',
+	'http://localhost:8788':           'http://localhost:8080',
 };
 
 export async function onRequest(context)
 {
+	self.location = {href: '/'};
 	const url  = new URL(context.request.url);
-    const path = url.pathname !== '/'
+	const path = url.pathname !== '/'
 	? url.pathname.substr(1)
 	: 'index.php';
 
 	const staticOrigin  = staticOrigins[url.origin];
-    const fetchResource = fetch(staticOrigin + '/' + path);
+	const fetchResource = fetch(staticOrigin + '/' + path);
 	const contentType   = String(context.request.headers.get("content-type"));
 
 	const _POST = {};
@@ -33,55 +34,53 @@ export async function onRequest(context)
 		}
 	}
 
-    if('.php' !== path.substr(-4 + path.length, 4))
-    {
-		// const fetchResource = fetch(staticOrigin + '/' + path);
-        return fetchResource;
-    }
+	if('.php' !== path.substr(-4 + path.length, 4))
+	{
+		return fetchResource;
+	}
 
 	const db   = context.env.db;
-    const _GET = Object.fromEntries(url.searchParams.entries());
+	const _GET = Object.fromEntries(url.searchParams.entries());
 
-    const { readable, writable } = new TransformStream();
+	const { readable, writable } = new TransformStream();
 	const encoder = new TextEncoder();
 	const writer = writable.getWriter();
-    const writes = [];
+	const writes = [];
 
-    const write = event => void writes.push(writer.write(encoder.encode(event.detail)));
+	const write = event => void writes.push(writer.write(encoder.encode(event.detail)));
 
 	const headers = new Headers;
 
-    headers.set('content-type', 'text/html');
+	headers.set('content-type', 'text/html');
 
 	const php = new PhpWorker({
-        _GET, _POST, db,
+		_GET, _POST, cfd1: { db },
 		responseHeaders: headers,
 		staticOrigin,
 		origin: url.origin,
-        locateFile: (file, prefix) => `${url.origin}/${prefix}${file}`,
-        instantiateWasm(info, receive) {
-            let instance = new WebAssembly.Instance(WasmBinary, info);
-            receive(instance);
-            return instance.exports;
-        },
-    });
+		locateFile: (file, prefix) => `${url.origin}/${prefix}${file}`,
+		instantiateWasm(info, receive) {
+			let instance = new WebAssembly.Instance(WasmBinary, info);
+			receive(instance);
+			return instance.exports;
+		},
+	});
 
-    php.addEventListener('output', write);
-    php.addEventListener('error',  write);
+	php.addEventListener('output', write);
+	php.addEventListener('error',  write);
 
 	const r = await fetchResource;
 	const t = await r.text();
 
-	// const runPhp = php.run(`<?php echo file_get_contents('https://jsonplaceholder.typicode.com/posts/1');`)
 	const runPhp = php.run(t)
 		.then(() => Promise.all(writes))
 		.then(() => writer.close());
 
-    context.waitUntil(runPhp);
+	context.waitUntil(runPhp);
 
-    return new Response(readable, {
-        status: '200',
-        statusText: 'OK',
-        headers
-    });
+	return new Response(readable, {
+		status: '200',
+		statusText: 'OK',
+		headers
+	});
 }
