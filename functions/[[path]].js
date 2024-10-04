@@ -1,14 +1,14 @@
-import { PhpWeb } from '../PhpWeb.mjs';
-import WasmBinary from '../php-web.wasm';
+import { PhpWorker } from '../PhpWorker.mjs';
+import WasmBinary from '../php-worker.mjs.wasm';
 
 const staticOrigins = {
 	'https://php-cloud.pages.dev': 'https://seanmorris.github.io/php-static',
-	'http://localhost:8788': 'http://localhost:8081',
+	'http://localhost:8788': 'http://localhost:8080',
 };
 
 export async function onRequest(context)
 {
-    const url  = new URL(context.request.url);
+	const url  = new URL(context.request.url);
     const path = url.pathname !== '/'
 	? url.pathname.substr(1)
 	: 'index.php';
@@ -33,6 +33,7 @@ export async function onRequest(context)
 
     if('.php' !== path.substr(-4 + path.length, 4))
     {
+		// const fetchResource = fetch(staticOrigin + '/' + path);
         return fetchResource;
     }
 
@@ -50,15 +51,12 @@ export async function onRequest(context)
 
     headers.set('content-type', 'text/html');
 
-	const trigger = {};
-	const waiter = new Promise(accept => trigger.accept = accept);
-
-    const php = new PhpWeb({
+	const php = new PhpWorker({
         _GET, _POST, db,
 		responseHeaders: headers,
-		trigger: trigger.accept,
 		staticOrigin,
 		origin: url.origin,
+		x: Promise.resolve(321),
         locateFile: (file, prefix) => `${url.origin}/${prefix}${file}`,
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info);
@@ -70,17 +68,14 @@ export async function onRequest(context)
     php.addEventListener('output', write);
     php.addEventListener('error',  write);
 
-    const runPhp = php.binary
-    .then(() => fetchResource)
-    .then(r => r.text())
-    .then(r => php.run(r))
-    .then(() => Promise.all(writes))
-    .then(() => writer.close());
+	const r = await fetchResource;
+	const t = await r.text();
+
+	const runPhp = php.run(t)
+		.then(() => Promise.all(writes))
+		.then(() => writer.close());
 
     context.waitUntil(runPhp);
-
-    // await Promise.race([runPhp, waiter]);
-	// console.log(runPhp, waiter);
 
     return new Response(readable, {
         status: '200',

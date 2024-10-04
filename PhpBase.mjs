@@ -1,3 +1,10 @@
+import { phpVersion } from './config.mjs';
+import { phpVersionFull } from './config.mjs';
+import { OutputBuffer } from './OutputBuffer.mjs';
+import { _Event } from './_Event.mjs';
+import { fsOps } from './fsOps.mjs';
+import { resolveDependencies } from './resolveDependencies.mjs';
+
 const STR = 'string';
 const NUM = 'number';
 
@@ -7,23 +14,29 @@ export class PhpBase extends EventTarget
 	{
 		super();
 
-		const FLAGS = {};
+		this.queue  = [];
 
 		this.onerror  = function () {};
 		this.onoutput = function () {};
 		this.onready  = function () {};
 
 		Object.defineProperty(this, 'encoder', {value: new TextEncoder()});
-
 		Object.defineProperty(this, 'buffers', {value: {
 			stdin: [],
-			stdout: new EventBuffer(this, 'output', -1),
-			stderr: new EventBuffer(this, 'error',  -1),
+			stdout: new OutputBuffer(this, 'output', -1),
+			stderr: new OutputBuffer(this, 'error',  -1),
 		} });
 
 		Object.freeze(this.buffers);
 
-		const defaults  = {
+		this.autoTransaction = ('autoTransaction' in args) ? args.autoTransaction : true;
+		this.transactionStarted = false;
+
+		this.shared = args.shared = ('shared' in args) ? args.shared : {};
+
+		this.phpArgs = args;
+
+		const defaults = {
 			stdin:  () => this.buffers.stdin.shift() ?? null,
 			stdout: byte => this.buffers.stdout.push(byte),
 			stderr: byte => this.buffers.stderr.push(byte),
@@ -35,19 +48,78 @@ export class PhpBase extends EventTarget
 			},
 		};
 
+		const fixed = { onRefresh: new Set };
 		const phpSettings = globalThis.phpSettings ?? {};
+		const userLocateFile = args.locateFile || (() => undefined);
 
-		this.binary = new PhpBinary(Object.assign({}, defaults, phpSettings, args)).then(php => {
-			const retVal = php.ccall(
-				'pib_init'
+		const files = args.files || [];
+
+		const {files: extraFiles, libs, urlLibs} = resolveDependencies(args.sharedLibs, this);
+
+		args.locateFile = (path, directory) => {
+			let located = userLocateFile(path, directory);
+			if(located !== undefined)
+			{
+				return located;
+			}
+			if(urlLibs[path])
+			{
+				return urlLibs[path];
+			}
+		};
+
+		this.valueIndex = 0;
+
+		this.binary = new PhpBinary(Object.assign({}, defaults, phpSettings, args, fixed)).then(async php => {
+
+			php.ccall(
+				'pib_storage_init'
 				, NUM
-				, [STR]
+				, []
 				, []
 			);
 
-			return php;
+			if(!php.FS.analyzePath('/preload').exists)
+			{
+				php.FS.mkdir('/preload');
+			}
 
-		}).catch(error => console.error(error));
+			await Promise.all(files.concat(extraFiles).map(
+				fileDef => new Promise(accept => php.FS.createPreloadedFile(
+					fileDef.parent,
+					fileDef.name,
+					fileDef.url,
+					true,
+					false,
+					accept,
+				))
+			));
+
+			const iniLines = libs.map(lib => {
+				if(typeof lib === 'string' || lib instanceof URL)
+				{
+					return `extension=${lib}`;
+				}
+				else if(typeof lib === 'object' && lib.ini)
+				{
+					return `extension=${String(lib.url).split('/').pop()}`;
+				}
+			});
+
+			args.ini && iniLines.push(args.ini.replace(/\n\s+/g, '\n'));
+
+			php.FS.writeFile('/php.ini', iniLines.join("\n") + "\n", {encoding: 'utf8'});
+
+			await php.ccall(
+				'pib_init'
+				, NUM
+				, []
+				, []
+				, {async: true}
+			);
+
+			return php;
+		});
 	}
 
 	inputString(byteString)
@@ -66,106 +138,275 @@ export class PhpBase extends EventTarget
 		this.buffers.stderr.flush();
 	}
 
-	run(phpCode)
+	tokenize(phpCode)
 	{
 		return this.binary.then(php => php.ccall(
+			'pib_tokenize'
+			, STR
+			, [STR]
+			, [phpCode]
+		));
+	}
+
+	startTransaction()
+	{
+		return Promise.resolve();
+	}
+
+	commitTransaction()
+	{
+		return Promise.resolve();
+	}
+
+	async _enqueue(callback, params = [])
+	{
+		let accept, reject;
+
+		const coordinator = new Promise((a,r) => [accept, reject] = [a, r]);
+
+		const _accept = result => accept(result);
+		const _reject = reason => reject(reason);
+
+		this.queue.push([callback, params, _accept, _reject]);
+
+		if(!this.queue.length)
+		{
+			return;
+		}
+
+		await this.autoTransaction ? this.startTransaction() : Promise.resolve();
+
+		while(this.queue.length)
+		{
+			const [callback, params, accept, reject] = this.queue.shift();
+			await callback(...params).then(accept).catch(reject);
+		}
+
+		await this.autoTransaction ? this.commitTransaction() : Promise.resolve();
+
+		return coordinator;
+	}
+
+	run(phpCode)
+	{
+		return this._enqueue(phpCode => this._run(phpCode), [phpCode]);
+	}
+
+	async _run(phpCode)
+	{
+		const call = (await this.binary).ccall(
 			'pib_run'
 			, NUM
 			, [STR]
 			, [`?>${phpCode}`]
-			, {async:true}
-		))
-		.finally(() => this.flush());
+			, {async: true}
+		);
+
+		return call.finally(() => this.flush());
 	}
 
 	exec(phpCode)
 	{
-		return this.binary.then(php => php.ccall(
+		return this._enqueue(phpCode => this._exec(phpCode), [phpCode]);
+	}
+
+	async _exec(phpCode)
+	{
+		const call = (await this.binary).ccall(
 			'pib_exec'
 			, STR
 			, [STR]
 			, [phpCode]
-			, {async:true}
-		))
-		.finally(() => this.flush());
+			, {async: true}
+		);
+
+		return call.finally(() => this.flush());
 	}
 
-	refresh()
+	async x(fragments, ...values)
 	{
-		const call = this.binary.then(php => php.ccall(
+		const names = [];
+		const phpModule = await this.binary;
+
+		if(phpModule.hasVrzno)
+		{
+			for(const value of values)
+			{
+				const name = `___value__${this.valueIndex++}`;
+				this.shared[name] = value;
+				names.push(name);
+			}
+
+			let code = '';
+
+			fragments = [...fragments];
+
+			while(fragments.length || names.length)
+			{
+				if(fragments.length)
+					code += fragments.shift();
+
+				if(names.length)
+				{
+					code += `(vrzno_shared('${names.shift()}'))`;
+				}
+			}
+
+			code = `vrzno_zval( ${code} );`;
+
+			return phpModule.zvalToJS(await this.exec(code));
+		}
+		else
+		{
+			const encoded = values.map(value => JSON.stringify(value));
+
+			fragments = [...fragments];
+
+			let code = '';
+
+			while(fragments.length || names.length)
+			{
+				if(fragments.length)
+					code += fragments.shift();
+
+				if(encoded.length)
+				{
+					code += `(json_decode('${encoded.shift()}'))`;
+				}
+			}
+
+			return this.exec(code);
+		}
+	}
+
+	async r(fragments, ...values)
+	{
+		const names = [];
+		const phpModule = await this.binary;
+
+		if(phpModule.hasVrzno)
+		{
+			for(const value of values)
+			{
+				const name = `___value__${this.valueIndex++}`;
+				this.shared[name] = value;
+				names.push(name);
+			}
+
+			let code = '';
+
+			fragments = [...fragments];
+
+			while(fragments.length || names.length)
+			{
+				if(fragments.length)
+					code += fragments.shift();
+
+				if(names.length)
+				{
+					code += `(vrzno_shared('${names.shift()}'))`;
+				}
+			}
+
+			return this.run(code);
+		}
+		else
+		{
+			const encoded = values.map(value => JSON.stringify(value));
+
+			fragments = [...fragments];
+
+			let code = '';
+
+			while(fragments.length || names.length)
+			{
+				if(fragments.length)
+					code += fragments.shift();
+
+				if(encoded.length)
+				{
+					code += `(json_decode('${encoded.shift()}'))`;
+				}
+			}
+
+			return this.run(code);
+		}
+	}
+
+	async refresh()
+	{
+		const php = await this.binary;
+
+		for(const callback of php.onRefresh)
+		{
+			callback();
+		}
+
+		Object.keys(this.shared).forEach(key => delete this.shared[key]);
+
+		return php.ccall(
 			'pib_refresh'
 			, NUM
 			, []
 			, []
-		));
+			, {async: true}
+		);
+	}
 
-		call.catch(error => console.error(error));
+	analyzePath(path)
+	{
+		return this._enqueue(fsOps.analyzePath, [this.binary, path]);
+	}
 
-		return call;
+	readdir(path)
+	{
+		return this._enqueue(fsOps.readdir, [this.binary, path]);
+	}
+
+	readFile(path, options)
+	{
+		return this._enqueue(fsOps.readFile, [this.binary, path, options]);
+	}
+
+	stat(path)
+	{
+		return this._enqueue(fsOps.stat, [this.binary, path]);
+	}
+
+	mkdir(path)
+	{
+		return this._enqueue(fsOps.mkdir, [this.binary, path]);
+	}
+
+	rmdir(path)
+	{
+		return this._enqueue(fsOps.rmdir, [this.binary, path]);
+	}
+
+	rename(path, newPath)
+	{
+		return this._enqueue(fsOps.rename, [this.binary, path, newPath]);
+	}
+
+	writeFile(path, data, options)
+	{
+		return this._enqueue(fsOps.writeFile, [this.binary, path, data, options]);
+	}
+
+	unlink(path)
+	{
+		return this._enqueue(fsOps.unlink, [this.binary, path]);
+	}
+
+	async hangingPromises()
+	{
+		const php = await this.binary;
+
+		console.log(php.pending);
+
+		await Promise.all(php.pending);
 	}
 }
 
-const _Event = globalThis.CustomEvent ?? class extends globalThis.Event
-{
-	constructor(name, options = {})
-	{
-		super(name, options)
-		this.detail = options.detail;
-	}
-};
-
-class EventBuffer
-{
-	constructor(target, eventType, maxLength)
-	{
-		Object.defineProperty(this, 'target',    {value: target});
-		Object.defineProperty(this, 'buffer',    {value: []});
-		Object.defineProperty(this, 'eventType', {value: eventType});
-		Object.defineProperty(this, 'maxLength', {value: maxLength});
-		Object.defineProperty(this, 'decoder',   {value: new TextDecoder()});
-	}
-
-	push(...items)
-	{
-		this.buffer.push(...items);
-
-		const end = this.buffer.length - 1;
-
-		if(this.maxLength === -1 && this.buffer[end] === 10)
-		{
-			this.flush();
-		}
-
-		if(this.maxLength >= 0 && this.buffer.length >= this.maxLength)
-		{
-			this.flush();
-		}
-	}
-
-	flush()
-	{
-		if(!this.buffer.length)
-		{
-			return;
-		}
-
-		const event = new CustomEvent(this.eventType, {
-			detail: [this.decoder.decode(new Uint8Array(this.buffer))]
-		});
-
-		if(this.target['on' + this.eventType])
-		{
-			if(this.target['on' + this.eventType](event) === false)
-			{
-				return;
-			}
-		}
-
-		if(!this.target.dispatchEvent(event))
-		{
-			return;
-		}
-
-		this.buffer.splice(0);
-	}
-}
+PhpBase.phpVersion = phpVersion;
+PhpBase.phpVersionFull = phpVersionFull;

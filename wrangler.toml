@@ -1,0 +1,5 @@
+[[d1_databases]]
+binding = "db" # available in your Worker on context.env.db
+database_name = "php-test"
+database_id = "ae1d795a-c0bd-49a8-b3ea-f0d6964077e1"
+preview_database_id = "db"

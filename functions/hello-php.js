@@ -1,9 +1,9 @@
-import { PhpWeb } from '../PhpWeb.mjs';
-import WasmBinary from '../php-web.wasm';
+import { PhpWorker } from '../PhpWorker.mjs';
+import WasmBinary from '../php-worker.mjs.wasm';
 
 export function onRequest(context) {
 
-    const php = new PhpWeb({
+    const php = new PhpWorker({
         instantiateWasm(info, receive) {
             let instance = new WebAssembly.Instance(WasmBinary, info)
             receive(instance)
@@ -25,7 +25,7 @@ export function onRequest(context) {
 
         php.addEventListener('output', write);
         php.addEventListener('error',  write);
-        
+
         context.waitUntil(php.run('<?php phpinfo();'));
 
         return new Response(readable, {
