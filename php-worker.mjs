@@ -375,22 +375,22 @@ var tempDouble;
 var tempI64;
 
 var ASM_CONSTS = {
- 1162767: () => typeof Module.cfd1 === "object" && Object.keys(Module.cfd1).length,
- 1162845: $0 => {
+ 1160211: () => typeof Module.cfd1 === "object" && Object.keys(Module.cfd1).length,
+ 1160289: $0 => {
   const results = Module.targets.get($0);
   if (results) {
    return results.length;
   }
   return 0;
  },
- 1162938: $0 => {
+ 1160382: $0 => {
   const results = Module.targets.get($0);
   if (results.length) {
    return Object.keys(results[0]).length;
   }
   return 0;
  },
- 1163054: ($0, $1) => {
+ 1160498: ($0, $1) => {
   const targetId = $0;
   const target = Module.targets.get(targetId);
   const current = $1;
@@ -399,7 +399,7 @@ var ASM_CONSTS = {
   }
   return true;
  },
- 1163204: ($0, $1) => {
+ 1160648: ($0, $1) => {
   const results = Module.targets.get($0);
   if (results.length) {
    const jsRet = Object.keys(results[0])[$1];
@@ -410,7 +410,7 @@ var ASM_CONSTS = {
   }
   return 0;
  },
- 1163442: ($0, $1, $2, $3) => {
+ 1160886: ($0, $1, $2, $3) => {
   const results = Module.targets.get($0);
   const current = -1 + $1;
   const rv = $3;
@@ -421,7 +421,7 @@ var ASM_CONSTS = {
   const key = Object.keys(result)[$2];
   Module.jsToZval(result[key], rv);
  },
- 1163695: ($0, $1) => {
+ 1161139: ($0, $1) => {
   const statement = Module.targets.get($0);
   const paramVal = Module.zvalToJS($1);
   if (!Module.PdoParams.has(statement)) {
@@ -430,16 +430,16 @@ var ASM_CONSTS = {
   const paramList = Module.PdoParams.get(statement);
   paramList.push(paramVal);
  },
- 1163934: ($0, $1, $2) => {
+ 1161378: ($0, $1, $2) => {
   console.log("GET ATTR", $0, $1, $2);
  },
- 1163975: ($0, $1, $2) => {
+ 1161419: ($0, $1, $2) => {
   console.log("COL META", $0, $1, $2);
  },
- 1164016: ($0, $1, $2) => {
+ 1161460: ($0, $1, $2) => {
   console.log("CLOSE", $0, $1, $2);
  },
- 1164054: $0 => {
+ 1161498: $0 => {
   if (typeof Module.cfd1 !== "object") {
    throw new Error("The `cfd1` object must be provided as a constructor arg to PHP to use pdo_cfd1.");
   }
@@ -448,50 +448,50 @@ var ASM_CONSTS = {
    throw new Error(`The value provided at cfd1[${dbName}] does not exist or is not an object.`);
   }
  },
- 1164373: $0 => {
+ 1161817: $0 => {
   console.log("CLOSE", $0);
  },
- 1164403: ($0, $1, $2) => {
+ 1161847: ($0, $1, $2) => {
   const dbName = UTF8ToString($0);
   const query = UTF8ToString($1);
   const zv = $2;
   const prepared = Module.cfd1[dbName].prepare(query);
   Module.jsToZval(prepared, zv);
  },
- 1164571: () => {
+ 1162015: () => {
   console.log("BEGIN TXN");
   return true;
  },
- 1164614: $0 => {
+ 1162058: $0 => {
   console.log("COMMIT TXN", $0);
   return true;
  },
- 1164662: $0 => {
+ 1162106: $0 => {
   console.log("ROLLBACK TXN", $0);
   return true;
  },
- 1164712: ($0, $1, $2) => {
+ 1162156: ($0, $1, $2) => {
   console.log("SET ATTR", $1, $2);
   return true;
  },
- 1164762: $0 => {
+ 1162206: $0 => {
   console.log("LAST INSERT ID", UTF8ToString($0));
   return 0;
  },
- 1164825: ($0, $1) => {
+ 1162269: ($0, $1) => {
   console.log("FETCH ERROR FUNC", $0, $1);
  },
- 1164870: ($0, $1) => {
+ 1162314: ($0, $1) => {
   console.log("GET ATTR", $0, $1);
   return 0;
  },
- 1164917: () => {
+ 1162361: () => {
   console.log("SHUTDOWN");
  },
- 1164946: $0 => {
+ 1162390: $0 => {
   console.log("GET GC", $0);
  },
- 1164977: $0 => {
+ 1162421: $0 => {
   if (Module.persist) {
    const persist = Array.isArray(Module.persist) ? Module.persist : [ Module.persist ];
    const useNodeRawFS = $0;
@@ -519,24 +519,70 @@ var ASM_CONSTS = {
    }));
   }
  },
- 1165601: ($0, $1, $2) => {
+ 1163045: ($0, $1) => {
   const target = Module.targets.get($0);
   const property = UTF8ToString($1);
-  const rv = $2;
   if (!(property in target)) {
-   return Module.jsToZval(undefined, rv);
+   const jsRet = "UN";
+   const len = lengthBytesUTF8(jsRet) + 1;
+   const strLoc = _malloc(len);
+   stringToUTF8(jsRet, strLoc, len);
+   return strLoc;
   }
-  Module.jsToZval(target[property], rv);
+  if (target[property] === null) {
+   const jsRet = "NU";
+   const len = lengthBytesUTF8(jsRet) + 1;
+   const strLoc = _malloc(len);
+   stringToUTF8(jsRet, strLoc, len);
+   return strLoc;
+  }
+  const result = target[property];
+  if (!result || ![ "function", "object" ].includes(typeof result)) {
+   const jsRet = "OK" + String(result);
+   const len = lengthBytesUTF8(jsRet) + 1;
+   const strLoc = _malloc(len);
+   stringToUTF8(jsRet, strLoc, len);
+   return strLoc;
+  }
+  const jsRet = "XX";
+  const len = lengthBytesUTF8(jsRet) + 1;
+  const strLoc = _malloc(len);
+  stringToUTF8(jsRet, strLoc, len);
+  return strLoc;
  },
- 1165802: ($0, $1, $2, $3, $4) => {
+ 1163855: ($0, $1, $2) => {
+  const target = Module.targets.get($0);
+  const property = UTF8ToString($1);
+  const result = target[property];
+  const zvalPtr = $2;
+  if (result && [ "function", "object" ].includes(typeof result)) {
+   let index = Module.targets.getId(result);
+   if (!Module.targets.has(result)) {
+    index = Module.targets.add(result);
+    Module.zvalMap.set(result, zvalPtr);
+   }
+   return index;
+  }
+  return 0;
+ },
+ 1164225: $0 => {
+  "function" === typeof Module.targets.get($0);
+ },
+ 1164277: ($0, $1, $2) => {
+  (() => {
+   const target = Module.targets.get($0);
+   const property = UTF8ToString($1);
+  })();
+ },
+ 1164389: ($0, $1, $2, $3, $4) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    const funcPtr = $2;
-   target[property] = Module.callableToJs(funcPtr);
+   target[property] = Module.callableToJs(funcPtr, null);
   })();
  },
- 1166005: ($0, $1, $2) => {
+ 1164598: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
@@ -546,49 +592,49 @@ var ASM_CONSTS = {
    }
   })();
  },
- 1166212: ($0, $1) => {
+ 1164805: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    delete target[property];
   })();
  },
- 1166328: ($0, $1) => {
+ 1164921: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    target[property] = null;
   })();
  },
- 1166444: ($0, $1) => {
+ 1165037: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    target[property] = false;
   })();
  },
- 1166561: ($0, $1) => {
+ 1165154: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    target[property] = true;
   })();
  },
- 1166677: ($0, $1, $2) => {
+ 1165270: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    target[property] = $2;
   })();
  },
- 1166791: ($0, $1, $2) => {
+ 1165384: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    target[property] = $2;
   })();
  },
- 1166905: ($0, $1, $2) => {
+ 1165498: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
@@ -596,10 +642,9 @@ var ASM_CONSTS = {
    target[property] = newValue;
   })();
  },
- 1167060: ($0, $1, $2) => {
+ 1165653: ($0, $1) => {
   let target = Module.targets.get($0);
   const property = $1;
-  const rv = $2;
   if (target instanceof ArrayBuffer) {
    if (!Module.bufferMaps.has(target)) {
     Module.bufferMaps.set(target, new Uint8Array(target));
@@ -607,11 +652,57 @@ var ASM_CONSTS = {
    target = Module.bufferMaps.get(target);
   }
   if (!(property in target)) {
-   return Module.jsToZval(undefined, rv);
+   const jsRet = "UN";
+   const len = lengthBytesUTF8(jsRet) + 1;
+   const strLoc = _malloc(len);
+   stringToUTF8(jsRet, strLoc, len);
+   return strLoc;
   }
-  Module.jsToZval(target[property], rv);
+  if (target[property] === null) {
+   const jsRet = "NU";
+   const len = lengthBytesUTF8(jsRet) + 1;
+   const strLoc = _malloc(len);
+   stringToUTF8(jsRet, strLoc, len);
+   return strLoc;
+  }
+  const result = target[property];
+  if (!result || ![ "function", "object" ].includes(typeof result)) {
+   const jsRet = "OK" + String(result);
+   const len = lengthBytesUTF8(jsRet) + 1;
+   const strLoc = _malloc(len);
+   stringToUTF8(jsRet, strLoc, len);
+   return strLoc;
+  }
+  const jsRet = "XX";
+  const len = lengthBytesUTF8(jsRet) + 1;
+  const strLoc = _malloc(len);
+  stringToUTF8(jsRet, strLoc, len);
+  return strLoc;
  },
- 1167417: ($0, $1, $2, $3) => {
+ 1166619: ($0, $1, $2) => {
+  const target = Module.targets.get($0);
+  const property = UTF8ToString($1);
+  const result = target[property];
+  const zvalPtr = $2;
+  if (result && [ "function", "object" ].includes(typeof result)) {
+   let index = Module.targets.getId(result);
+   if (!Module.targets.has(result)) {
+    index = Module.targets.add(result);
+    Module.zvalMap.set(result, zvalPtr);
+   }
+   return index;
+  }
+  return 0;
+ },
+ 1166989: $0 => {
+  "function" === typeof Module.targets.get($0);
+ },
+ 1167041: ($0, $1, $2) => {
+  (() => {
+   const target = Module.targets.get($0);
+  })();
+ },
+ 1167139: ($0, $1, $2, $3) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
@@ -619,7 +710,7 @@ var ASM_CONSTS = {
    target[property] = Module.callableToJs(funcPtr);
   })();
  },
- 1167584: ($0, $1, $2) => {
+ 1167305: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
@@ -629,49 +720,49 @@ var ASM_CONSTS = {
    }
   })();
  },
- 1167777: ($0, $1) => {
+ 1167498: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
    delete target[property];
   })();
  },
- 1167879: ($0, $1) => {
+ 1167600: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
    target[property] = null;
   })();
  },
- 1167981: ($0, $1) => {
+ 1167702: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
    target[property] = false;
   })();
  },
- 1168084: ($0, $1) => {
+ 1167805: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
    target[property] = true;
   })();
  },
- 1168186: ($0, $1, $2) => {
+ 1167907: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
    target[property] = $2;
   })();
  },
- 1168286: ($0, $1, $2) => {
+ 1168007: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
    target[property] = $2;
   })();
  },
- 1168386: ($0, $1, $2) => {
+ 1168107: ($0, $1, $2) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
@@ -679,8 +770,7 @@ var ASM_CONSTS = {
    target[property] = newValue;
   })();
  },
- 1168527: ($0, $1, $2) => {
-  console.log("HASD", $0);
+ 1168248: ($0, $1, $2) => {
   const target = Module.targets.get($0);
   const property = $1;
   const check_empty = $2;
@@ -700,21 +790,21 @@ var ASM_CONSTS = {
    return !!target[property];
   }
  },
- 1169031: ($0, $1) => {
+ 1168727: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = UTF8ToString($1);
    delete target[property];
   })();
  },
- 1169147: ($0, $1) => {
+ 1168843: ($0, $1) => {
   (() => {
    const target = Module.targets.get($0);
    const property = $1;
    delete target[property];
   })();
  },
- 1169249: $0 => {
+ 1168945: $0 => {
   const target = Module.targets.get($0);
   let json;
   if (typeof target === "function") {
@@ -728,53 +818,79 @@ var ASM_CONSTS = {
     json = JSON.stringify({});
    }
   }
-  const str = String(json);
-  const len = 1 + lengthBytesUTF8(str);
-  const loc = _malloc(len);
-  stringToUTF8(str, loc, len);
-  return loc;
+  const jsRet = String(json);
+  const len = lengthBytesUTF8(jsRet) + 1;
+  const strLoc = _malloc(len);
+  stringToUTF8(jsRet, strLoc, len);
+  return strLoc;
  },
- 1169586: ($0, $1) => {
+ 1169297: ($0, $1) => {
   const target = Module.targets.get($0);
   const property = UTF8ToString($1);
   return property in target;
  },
- 1169691: ($0, $1, $2) => {
-  const target = Module.targets.get($0);
-  const property_name = UTF8ToString($1);
-  const rv = $2;
-  return Module.jsToZval(target[property_name], rv);
- },
- 1169840: ($0, $1, $2, $3, $4, $5) => {
+ 1169402: ($0, $1, $2, $3, $4) => {
   const target = Module.targets.get($0);
   const method_name = UTF8ToString($1);
-  const argp = $2;
+  const argv = $2;
   const argc = $3;
   const size = $4;
-  const rv = $5;
-  const args = [];
-  for (let i = 0; i < argc; i++) {
-   const loc = argp + i * size;
-   const ptr = Module.getValue(loc, "*");
-   const arg = Module.zvalToJS(ptr);
-   args.push(arg);
-  }
-  Module.jsToZval(target[method_name](...args), rv);
- },
- 1170207: ($0, $1, $2, $3, $4) => {
-  const target = Module.targets.get($0);
-  const argv = $1;
-  const argc = $2;
-  const size = $3;
-  const rv = $4;
   const args = [];
   for (let i = 0; i < argc; i++) {
    args.push(Module.zvalToJS(argv + i * size));
   }
-  return Module.jsToZval(target(...args), rv);
+  const jsRet = target[method_name](...args);
+  const retZval = Module.jsToZval(jsRet);
+  return retZval;
  },
- 1170457: ($0, $1, $2, $3) => {
-  const _class = Module._classes.get($0);
+ 1169730: ($0, $1, $2, $3) => {
+  const target = Module.targets.get($0);
+  const argv = $1;
+  const argc = $2;
+  const size = $3;
+  const args = [];
+  for (let i = 0; i < argc; i++) {
+   args.push(Module.zvalToJS(argv + i * size));
+  }
+  const jsRet = target(...args);
+  return Module.jsToZval(jsRet);
+ },
+ 1169982: ($0, $1) => {
+  const target = Module.targets.get($0);
+  const property_name = UTF8ToString($1);
+  target[property_name] = newValueJson;
+  const jsRet = target[property_name];
+  return Module.jsToZval(jsRet);
+ },
+ 1170171: $0 => {
+  const jsRet = String(eval(UTF8ToString($0)));
+  const len = lengthBytesUTF8(jsRet) + 1;
+  const strLoc = _malloc(len);
+  stringToUTF8(jsRet, strLoc, len);
+  return strLoc;
+ },
+ 1170339: ($0, $1) => {
+  const funcName = UTF8ToString($0);
+  const argJson = UTF8ToString($1);
+  const func = globalThis[funcName];
+  const args = JSON.parse(argJson || "[]") || [];
+  const jsRet = String(func(...args));
+  const len = lengthBytesUTF8(jsRet) + 1;
+  const strLoc = _malloc(len);
+  stringToUTF8(jsRet, strLoc, len);
+  return strLoc;
+ },
+ 1170650: ($0, $1) => {
+  const timeout = Number(UTF8ToString($0));
+  const funcPtr = $1;
+  setTimeout((() => {
+   Module.ccall("vrzno_exec_callback", "number", [ "number", "number", "number" ], [ funcPtr, null, 0 ]);
+   Module.ccall("vrzno_del_callback", "number", [ "number" ], [ funcPtr ]);
+  }), timeout);
+ },
+ 1170922: $0 => Module.jsToZval(Module[UTF8ToString($0)]),
+ 1170976: ($0, $1, $2, $3) => {
+  const _class = Module.targets.get($0);
   const argv = $1;
   const argc = $2;
   const size = $3;
@@ -783,127 +899,15 @@ var ASM_CONSTS = {
    args.push(Module.zvalToJS(argv + i * size));
   }
   const _object = new _class(...args);
-  const index = Module.targets.add(_object);
-  Module.tacked.add(_object);
-  return index;
+  return Module.jsToZval(_object);
  },
- 1170770: $0 => {
-  const target = Module.targets.get($0);
-  Module.tacked.delete(target);
-  Module.targets.remove(target);
- },
- 1170874: $0 => {
-  const target = Module.targets.get($0);
-  const str = String(target);
-  const len = 1 + lengthBytesUTF8(str);
-  const loc = _malloc(len);
-  stringToUTF8(str, loc, len);
-  return loc;
- },
- 1171050: () => {
-  const context = {};
-  Module.tacked.add(context);
-  return Module.targets.add(context);
- },
- 1171138: ($0, $1) => {
-  const context = Module.targets.get($0);
-  const method = UTF8ToString($1);
-  context.method = method;
- },
- 1171244: ($0, $1) => {
-  (() => {
-   const context = Module.targets.get($0);
-   const headerLine = UTF8ToString($1);
-   const colon = headerLine.indexOf(":");
-   const key = headerLine.substr(0, colon).trim();
-   const val = headerLine.substr(1 + colon).trim();
-   context.headers = context.headers ?? {};
-   context.headers[key] = val;
-   console.log(context.headers);
-  })();
- },
- 1171574: ($0, $1) => {
-  (() => {
-   const context = Module.targets.get($0);
-   const headerLines = UTF8ToString($1);
-   headerLines.split("\n").forEach((headerLine => {
-    const context = Module.targets.get($0);
-    const colon = headerLine.indexOf(":");
-    const key = headerLine.substr(0, colon).trim();
-    const val = headerLine.substr(1 + colon).trim();
-    context.headers = context.headers ?? {};
-    context.headers[key] = val;
-    console.log(context.headers);
-   }));
-  })();
- },
- 1171997: ($0, $1, $2) => {
-  (() => {
-   const context = Module.targets.get($0);
-   context.body = Module.HEAPU8.slice($1, $1 + $2);
-  })();
- },
- 1172104: ($0, $1) => {
-  const context = Module.targets.get($0);
-  context.ignoreErrors = $1;
- },
- 1172179: $0 => {
-  const {status: status} = Module.targets.get($0);
-  return status;
- },
- 1172243: $0 => {
-  const str = String(eval(UTF8ToString($0)));
-  const len = lengthBytesUTF8(str) + 1;
-  const loc = _malloc(len);
-  stringToUTF8(str, loc, len);
-  return loc;
- },
- 1172396: ($0, $1) => {
-  const funcName = UTF8ToString($0);
-  const argJson = UTF8ToString($1);
-  const func = globalThis[funcName];
-  const args = JSON.parse(argJson || "[]") || [];
-  const str = String(func(...args));
-  const len = lengthBytesUTF8(str) + 1;
-  const loc = _malloc(len);
-  stringToUTF8(str, loc, len);
-  return loc;
- },
- 1172692: ($0, $1) => {
-  const timeout = Number(UTF8ToString($0));
-  const funcPtr = $1;
-  setTimeout((() => {
-   Module.ccall("vrzno_exec_callback", "number", [ "number", "number", "number", "number" ], [ funcPtr, null, 0, 0 ]);
-   Module.ccall("vrzno_del_callback", "number", [ "number" ], [ funcPtr ]);
-  }), timeout);
- },
- 1172976: ($0, $1) => {
+ 1171236: $0 => {
   const name = UTF8ToString($0);
-  const rv = $1;
-  Module.jsToZval(Module[name], rv);
+  return Module.jsToZval(import(/* webpackIgnore: true */ name));
  },
- 1173061: ($0, $1) => {
-  const name = UTF8ToString($0);
-  const rv = $1;
-  Module.jsToZval(Module.shared[name], rv);
- },
- 1173153: ($0, $1) => {
-  const name = UTF8ToString($0);
-  const rv = $1;
-  Module.jsToZval(import(/* webpackIgnore: true */ name), rv);
- },
- 1173238: () => {
-  const IS_UNDEF = 0;
-  const IS_NULL = 1;
-  const IS_FALSE = 2;
-  const IS_TRUE = 3;
-  const IS_LONG = 4;
-  const IS_DOUBLE = 5;
-  const IS_STRING = 6;
-  const IS_ARRAY = 7;
-  const IS_OBJECT = 8;
-  Module.hasVrzno = true;
-  Module.tacked = new Set;
+ 1171309: () => {
+  Module.zvalMap = new WeakMap;
+  Module.isTarget = Symbol("IS_TARGET");
   const FinReg = globalThis.FinalizationRegistry || class {
    register() {}
    unregister() {}
@@ -920,36 +924,19 @@ var ASM_CONSTS = {
    Module.ccall("vrzno_expose_dec_refcount", "number", [ "number" ], [ zvalPtr ]);
   }));
   Module.bufferMaps = new WeakMap;
-  const getRegistry = weakerMap => {
-   const registry = new FinReg((key => {
-    if (weakerMap.registry !== registry) {
-     return;
-    }
-    if (weakerMap.map.has(key) && weakerMap.map.get(key).deref()) {
-     return;
-    }
-    weakerMap.delete(key);
-   }));
-   return registry;
-  };
   Module.WeakerMap = Module.WeakerMap || class WeakerMap {
    constructor(entries) {
+    this.registry = new FinReg((held => this.delete(held)));
     this.map = new Map;
-    this.registry = getRegistry(this);
     entries && entries.forEach((([key, value]) => this.set(key, value)));
    }
    get size() {
     return this.map.size;
    }
    clear() {
-    this.registry = getRegistry(this);
     this.map.clear();
    }
    delete(key) {
-    if (!this.has(key)) {
-     return;
-    }
-    this.registry.unregister(this.get(key));
     this.map.delete(key);
    }
    [Symbol.iterator]() {
@@ -991,11 +978,7 @@ var ASM_CONSTS = {
     if (!this.has(key)) {
      return;
     }
-    const value = this.map.get(key).deref();
-    if (!value) {
-     this.map.delete(key);
-    }
-    return value;
+    return this.map.get(key).deref();
    }
    has(key) {
     if (!this.map.has(key)) {
@@ -1005,7 +988,7 @@ var ASM_CONSTS = {
     if (!result) {
      this.map.delete(key);
     }
-    return Boolean(result);
+    return result;
    }
    keys() {
     return [ ...this ].map((v => v[0]));
@@ -1024,128 +1007,57 @@ var ASM_CONSTS = {
     return [ ...this ].map((v => v[1]));
    }
   };
-  Module.marshalObject = (zv, type) => {
-   const nativeTarget = Module.ccall("vrzno_expose_target", "number", [ "number" ], [ zv ]);
+  Module.marshalObject = zvalPtr => {
+   const nativeTarget = Module.ccall("vrzno_expose_zval_is_target", "number", [ "number" ], [ zvalPtr ]);
    if (nativeTarget && Module.targets.hasId(nativeTarget)) {
     return Module.targets.get(nativeTarget);
    }
    const proxy = new Proxy({}, {
     ownKeys: target => {
-     let keysLoc;
-     if (type === IS_ARRAY) {
-      keysLoc = Module.ccall("vrzno_expose_array_keys", "number", [ "number" ], [ zv ]);
-     } else if (type === IS_OBJECT) {
-      keysLoc = Module.ccall("vrzno_expose_object_keys", "number", [ "number" ], [ zv ]);
-     }
-     if (keysLoc) {
-      const keyJson = UTF8ToString(keysLoc);
-      const keys = JSON.parse(keyJson);
-      _free(keysLoc);
-      keys.push(...Reflect.ownKeys(target));
-      return keys;
-     }
-     return [];
+     const keysLoc = Module.ccall("vrzno_expose_object_keys", "number", [ "number" ], [ zvalPtr ]);
+     const keyJson = UTF8ToString(keysLoc);
+     const keys = JSON.parse(keyJson);
+     keys.push(...Reflect.ownKeys(target));
+     return keys;
     },
     has: (target, prop) => {
-     switch (typeof prop) {
-     case "number":
-      return !!Module.ccall("vrzno_expose_dimension_pointer", "number", [ "number", "number" ], [ zv, prop ]);
-
-     case "string":
-      const len = lengthBytesUTF8(prop) + 1;
-      const namePtr = _malloc(len);
-      stringToUTF8(prop, namePtr, len);
-      const propPtr = Module.ccall("vrzno_expose_property_pointer", "number", [ "number", "number" ], [ zv, namePtr ]);
-      _free(namePtr);
-      return propPtr;
-
-     default:
+     if (typeof prop === "symbol") {
       return false;
      }
+     const len = lengthBytesUTF8(prop) + 1;
+     const namePtr = _malloc(len);
+     stringToUTF8(prop, namePtr, len);
+     const retPtr = Module.ccall("vrzno_expose_property_pointer", "number", [ "number", "number" ], [ zvalPtr, namePtr ]);
+     return !!retPtr;
     },
-    get: (target, prop) => {
-     let retPtr;
-     if (prop === Symbol.iterator) {
-      const max = Module.ccall("vrzno_expose_array_length", "number", [ "number" ], [ zv ]);
-      const iterator = () => {
-       let current = -1;
-       return {
-        next() {
-         const done = ++current >= max;
-         return {
-          done: done,
-          value: Module.zvalToJS(Module.ccall("vrzno_expose_dimension_pointer", "number", [ "number", "number" ], [ zv, current ]))
-         };
-        }
-       };
-      };
-      Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ zv ]);
-      Module.fRegistry.register(iterator, zv, iterator);
-      return iterator;
+    get: (target, prop, receiver) => {
+     if (typeof prop === "symbol") {
+      return target[prop];
      }
-     if (prop === Symbol.toPrimitive) {
-      const method = "__toString";
-      const len = lengthBytesUTF8(method) + 1;
-      const loc = _malloc(len);
-      stringToUTF8(method, loc, len);
-      const methodPtr = Module.ccall("vrzno_expose_method_pointer", "number", [ "number", "number" ], [ zv, loc ]);
-      _free(loc);
-      return () => Module.callableToJs(methodPtr, zv)();
-     }
-     switch (typeof prop) {
-     case "number":
-      retPtr = Module.ccall("vrzno_expose_dimension_pointer", "number", [ "number", "number" ], [ zv, prop ]);
-      break;
-
-     case "string":
-      prop = String(prop);
-      const len = lengthBytesUTF8(prop) + 1;
-      const loc = _malloc(len);
-      stringToUTF8(prop, loc, len);
-      if (type === IS_OBJECT) {
-       const methodPtr = Module.ccall("vrzno_expose_method_pointer", "number", [ "number", "number" ], [ zv, loc ]);
-       if (methodPtr) {
-        return Module.callableToJs(methodPtr, zv);
-       }
-       retPtr = Module.ccall("vrzno_expose_property_pointer", "number", [ "number", "number" ], [ zv, loc ]);
-      } else if (type === IS_ARRAY) {
-       retPtr = Module.ccall("vrzno_expose_key_pointer", "number", [ "number", "number" ], [ zv, loc ]);
-      }
-      _free(loc);
-      break;
-
-     default:
-      return false;
-     }
-     if (!retPtr) {
-      return;
-     }
+     const len = lengthBytesUTF8(prop) + 1;
+     const namePtr = _malloc(len);
+     stringToUTF8(prop, namePtr, len);
+     const retPtr = Module.ccall("vrzno_expose_property_pointer", "number", [ "number", "number" ], [ zvalPtr, namePtr ]);
      const proxy = Module.zvalToJS(retPtr);
+     if (proxy && [ "function", "object" ].includes(typeof proxy)) {
+      Module.zvalMap.set(proxy, retPtr);
+     }
+     _free(namePtr);
      return proxy ?? Reflect.get(target, prop);
     },
     getOwnPropertyDescriptor: (target, prop) => {
-     let retPtr;
-     switch (typeof prop) {
-     case "number":
-      retPtr = Module.ccall("vrzno_expose_dimension_pointer", "number", [ "number", "number" ], [ zv, prop ]);
-      break;
-
-     case "string":
-      const len = lengthBytesUTF8(prop) + 1;
-      const namePtr = _malloc(len);
-      stringToUTF8(prop, namePtr, len);
-      if (type === IS_OBJECT) {
-       retPtr = Module.ccall("vrzno_expose_property_pointer", "number", [ "number", "number" ], [ zv, namePtr ]);
-      } else if (type === IS_ARRAY) {
-       retPtr = Module.ccall("vrzno_expose_key_pointer", "number", [ "number", "number" ], [ zv, namePtr ]);
-      }
-      _free(namePtr);
-      break;
-
-     default:
-      return false;
+     if (typeof prop === "symbol" || prop in target) {
+      return Reflect.getOwnPropertyDescriptor(target, prop);
      }
+     const len = lengthBytesUTF8(prop) + 1;
+     const namePtr = _malloc(len);
+     stringToUTF8(prop, namePtr, len);
+     const retPtr = Module.ccall("vrzno_expose_property_pointer", "number", [ "number", "number" ], [ zvalPtr, namePtr ]);
      const proxy = Module.zvalToJS(retPtr);
+     if (proxy && [ "function", "object" ].includes(typeof proxy)) {
+      Module.zvalMap.set(proxy, retPtr);
+     }
+     _free(namePtr);
      return {
       configurable: true,
       enumerable: true,
@@ -1153,62 +1065,60 @@ var ASM_CONSTS = {
      };
     }
    });
-   Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ zv ]);
+   if (proxy && [ "function", "object" ].includes(typeof proxy)) {
+    Module.zvalMap.set(proxy, zvalPtr);
+   }
+   if (!Module.targets.has(proxy)) {
+    Module.targets.add(proxy);
+    Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ zvalPtr ]);
+    Module.fRegistry.register(proxy, zvalPtr, proxy);
+   }
    return proxy;
   };
-  Module.callableToJs = Module.callableToJs || ((funcPtr, objPtr = null) => {
-   if (Module.callables.has(funcPtr)) {
-    return Module.callables.get(funcPtr);
-   }
+  Module.callableToJs = Module.callableToJs || (funcPtr => {
    const wrapped = (...args) => {
-    let paramsPtr = null;
+    let paramPtrs = [], paramsPtr = null;
     if (args.length) {
-     paramsPtr = Module.ccall("vrzno_expose_create_params", "number", [ "number" ], [ args.length ]);
-     for (let i = 0; i < args.length; i++) {
-      Module.jsToZval(args[i], getValue(i * 4 + paramsPtr, "*"));
-     }
+     paramsPtr = Module.ccall("vrzno_expose_create_params", "number", [ "number", "number" ], [ args.length ]);
+     paramPtrs = args.map((a => Module.jsToZval(a)));
+     paramPtrs.forEach(((paramPtr, i) => {
+      Module.ccall("vrzno_expose_set_param", "number", [ "number", "number", "number" ], [ paramsPtr, i, paramPtr ]);
+     }));
     }
-    const zv = Module.ccall("vrzno_exec_callback", "number", [ "number", "number", "number", "number" ], [ funcPtr, paramsPtr, args.length, objPtr ]);
+    const zvalPtr = Module.ccall("vrzno_exec_callback", "number", [ "number", "number", "number" ], [ funcPtr, paramsPtr, args.length ]);
     if (args.length) {
-     Module.ccall("vrzno_expose_efree", "number", [ "number" ], [ paramsPtr ]);
+     paramPtrs.forEach(((p, i) => {}));
+     Module.ccall("vrzno_expose_efree", "number", [ "number", "number" ], [ paramsPtr, false ]);
     }
-    if (zv) {
-     const result = Module.zvalToJS(zv);
-     if (result && [ "function", "object" ].includes(typeof result)) {
-      Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ zv ]);
-      Module.fRegistry.register(result, zv, result);
-     }
-     return result;
+    if (zvalPtr) {
+     return Module.zvalToJS(zvalPtr);
     }
    };
-   Object.defineProperty(wrapped, "name", {
-    value: `PHP_@{0x${funcPtr.toString(16)}}`
-   });
-   Module.ccall("vrzno_expose_inc_crefcount", "number", [ "number" ], [ funcPtr ]);
    Module.callables.set(funcPtr, wrapped);
    return wrapped;
   });
-  Module.zvalToJS = Module.zvalToJS || (zv => {
-   if (!zv) {
-    return;
-   }
-   zv = Module.ccall("vrzno_expose_zval_deref", "number", [ "number" ], [ zv ]);
-   const isNative = Module.ccall("vrzno_expose_target", "number", [ "number" ], [ zv ]);
-   if (isNative) {
-    return Module.targets.get(isNative);
-   }
-   const callable = Module.ccall("vrzno_expose_callable", "number", [ "number" ], [ zv ]);
+  Module.zvalToJS = Module.zvalToJS || (zvalPtr => {
+   const IS_UNDEF = 0;
+   const IS_NULL = 1;
+   const IS_FALSE = 2;
+   const IS_TRUE = 3;
+   const IS_LONG = 4;
+   const IS_DOUBLE = 5;
+   const IS_STRING = 6;
+   const IS_OBJECT = 8;
+   const callable = Module.ccall("vrzno_expose_callable", "number", [ "number" ], [ zvalPtr ]);
    let valPtr;
    if (callable) {
     const wrapped = Module.callableToJs(callable);
     if (!Module.targets.has(wrapped)) {
      Module.targets.add(wrapped);
-     Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ zv ]);
-     Module.fRegistry.register(wrapped, zv, wrapped);
+     Module.zvalMap.set(wrapped, zvalPtr);
+     Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ zvalPtr ]);
+     Module.fRegistry.register(wrapped, zvalPtr, wrapped);
     }
     return wrapped;
    }
-   const type = Module.ccall("vrzno_expose_type", "number", [ "number" ], [ zv ]);
+   const type = Module.ccall("vrzno_expose_type", "number", [ "number" ], [ zvalPtr ]);
    switch (type) {
    case IS_UNDEF:
     return undefined;
@@ -1227,11 +1137,11 @@ var ASM_CONSTS = {
     break;
 
    case IS_LONG:
-    return Module.ccall("vrzno_expose_long", "number", [ "number" ], [ zv ]);
+    return Module.ccall("vrzno_expose_long", "number", [ "number" ], [ zvalPtr ]);
     break;
 
    case IS_DOUBLE:
-    valPtr = Module.ccall("vrzno_expose_double", "number", [ "number" ], [ zv ]);
+    valPtr = Module.ccall("vrzno_expose_double", "number", [ "number" ], [ zvalPtr ]);
     if (!valPtr) {
      return null;
     }
@@ -1239,55 +1149,72 @@ var ASM_CONSTS = {
     break;
 
    case IS_STRING:
-    valPtr = Module.ccall("vrzno_expose_string", "number", [ "number" ], [ zv ]);
+    valPtr = Module.ccall("vrzno_expose_string", "number", [ "number" ], [ zvalPtr ]);
     if (!valPtr) {
      return null;
     }
     return UTF8ToString(valPtr);
     break;
 
-   case IS_ARRAY:
    case IS_OBJECT:
-    return Module.marshalObject(zv, type);
+    const proxy = Module.marshalObject(zvalPtr);
+    if (Module.targets.hasId(zvalPtr)) {}
+    return proxy;
+    break;
 
    default:
     return null;
     break;
    }
   });
-  Module.jsToZval = Module.jsToZval || ((value, rv) => {
+  Module.jsToZval = Module.jsToZval || (value => {
+   if (value && [ "function", "object" ].includes(typeof value)) {
+    if (Module.zvalMap.has(value)) {
+     return Module.zvalMap.get(value);
+    }
+   }
+   let zvalPtr;
    if (typeof value === "undefined") {
-    Module.ccall("vrzno_expose_create_undef", "number", [ "number" ], [ rv ]);
+    zvalPtr = Module.ccall("vrzno_expose_create_undef", "number", [], []);
    } else if (value === null) {
-    Module.ccall("vrzno_expose_create_null", "number", [ "number" ], [ rv ]);
+    zvalPtr = Module.ccall("vrzno_expose_create_null", "number", [], []);
    } else if ([ true, false ].includes(value)) {
-    Module.ccall("vrzno_expose_create_bool", "number", [ "number", "number" ], [ value, rv ]);
+    zvalPtr = Module.ccall("vrzno_expose_create_bool", "number", [ "number" ], [ value ]);
    } else if (value && [ "function", "object" ].includes(typeof value)) {
-    const index = Module.targets.add(value);
-    const isFunction = typeof value === "function" ? index : 0;
-    const isConstructor = isFunction && !!(value.prototype && value.prototype.constructor);
-    Module.ccall("vrzno_expose_create_object_for_target", "number", [ "number", "number", "number", "number" ], [ index, isFunction, isConstructor, rv ]);
-    Module.tacked.add(value);
-    Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ rv ]);
-    Module.fRegistry.register(value, rv, value);
+    let index, existed;
+    if (!Module.targets.has(value)) {
+     index = Module.targets.add(value);
+     existed = false;
+    } else {
+     index = Module.targets.getId(value);
+     existed = true;
+    }
+    zvalPtr = Module.ccall("vrzno_expose_create_object_for_target", "number", [ "number", "number" ], [ index, typeof value === "function" ]);
+    Module.zvalMap.set(value, zvalPtr);
+    if (!existed) {
+     Module.ccall("vrzno_expose_inc_refcount", "number", [ "number" ], [ zvalPtr ]);
+     Module.fRegistry.register(value, zvalPtr, value);
+    }
    } else if (typeof value === "number") {
     if (Number.isInteger(value)) {
-     Module.ccall("vrzno_expose_create_long", "number", [ "number", "number" ], [ value, rv ]);
+     zvalPtr = Module.ccall("vrzno_expose_create_long", "number", [ "number" ], [ value ]);
     } else if (Number.isFinite(value)) {
-     Module.ccall("vrzno_expose_create_double", "number", [ "number", "number" ], [ value, rv ]);
+     zvalPtr = Module.ccall("vrzno_expose_create_double", "number", [ "number" ], [ value ]);
     }
    } else if (typeof value === "string") {
     const len = lengthBytesUTF8(value) + 1;
-    const loc = _malloc(len);
-    stringToUTF8(value, loc, len);
-    Module.ccall("vrzno_expose_create_string", "number", [ "number", "number" ], [ loc, rv ]);
-    _free(loc);
+    const strLoc = _malloc(len);
+    stringToUTF8(value, strLoc, len);
+    zvalPtr = Module.ccall("vrzno_expose_create_string", "number", [ "number" ], [ strLoc ]);
+    _free(strLoc);
    }
+   return zvalPtr;
   });
   Module.UniqueIndex = Module.UniqueIndex || class UniqueIndex {
    constructor() {
     this.byObject = new WeakMap;
     this.byInteger = new Module.WeakerMap;
+    this.tacked = new Map;
     this.id = 0;
     Object.defineProperty(this, "add", {
      configurable: false,
@@ -1350,54 +1277,54 @@ var ASM_CONSTS = {
       }
      }
     });
+    Object.defineProperty(this, "tack", {
+     configurable: false,
+     writable: false,
+     value: target => {
+      if (!this.tacked.has(target)) {
+       this.tacked.set(target, 1);
+      } else {
+       this.tacked.set(target, 1 + this.tacked.get(target));
+      }
+     }
+    });
+    Object.defineProperty(this, "untack", {
+     configurable: false,
+     writable: false,
+     value: target => {
+      if (!this.tacked.has(target)) {
+       return;
+      }
+      this.tacked.set(target, -1 + this.tacked.get(target));
+      if (this.tacked.get(target) <= 0) {
+       return this.tacked.delete(target);
+      }
+     }
+    });
    }
   };
-  Module.classes = Module.classes || new WeakMap;
-  Module._classes = Module._classes || new Module.WeakerMap;
   Module.callables = Module.callables || new Module.WeakerMap;
   Module.targets = Module.targets || new Module.UniqueIndex;
-  Module.targets.add(globalThis);
   Module.PdoParams = new WeakMap;
+  Module.PdoD1Driver = Module.PdoD1Driver || class PdoD1Driver {
+   prepare(db, query) {
+    console.log("prepare", {
+     db: db,
+     query: query
+    });
+    return db.prepare(query);
+   }
+   doer(db, query) {
+    console.log("doer", {
+     db: db,
+     query: query
+    });
+   }
+  };
+  Module.pdoDriver = Module.pdoDriver || new Module.PdoD1Driver;
  },
- 1185177: $0 => {
-  const target = Module.targets.get($0);
-  return Module.classes.get(target);
- },
- 1185255: ($0, $1) => {
-  const target = Module.targets.get($0);
-  Module.classes.set(target, $1);
-  Module._classes.set($1, target);
- },
- 1185363: ($0, $1, $2, $3) => {
-  const target = Module.targets.get($0);
-  const dest = $1;
-  const fpos = $2;
-  let count = $3;
-  if (target.status >= 400 && !target.context.ignoreErrors) {
-   return 0;
-  }
-  if (fpos >= target.buffer.length) {
-   count = 0;
-  } else if (fpos + count > target.buffer.length) {
-   count = target.buffer.length - fpos;
-  }
-  if (count) {
-   Module.HEAPU8.set(target.buffer.slice(fpos, fpos + count), dest);
-  }
-  return count;
- },
- 1185755: $0 => {
-  const parsed = Module.targets.get($0);
-  Module.tacked.delete(parsed);
- },
- 1185828: $0 => {
-  const _class = Module._classes.get($0);
-  if (_class) {
-   return Module.targets.getId(_class);
-  }
-  return Module.targets.add(globalThis);
- },
- 1185963: ($0, $1) => {
+ 1181776: () => Module.targets.add(globalThis),
+ 1181819: ($0, $1) => {
   let target = Module.targets.get($0);
   const property = $1;
   if (target instanceof ArrayBuffer) {
@@ -1413,24 +1340,16 @@ var ASM_CONSTS = {
   }
   return 0;
  },
- 1186326: ($0, $1, $2) => {
+ 1182182: ($0, $1) => {
   let target = Module.targets.get($0);
   const property = $1;
-  const rv = $2;
   if (target instanceof ArrayBuffer) {
    if (!Module.bufferMaps.has(target)) {
     Module.bufferMaps.set(target, new Uint8Array(target));
    }
    target = Module.bufferMaps.get(target);
   }
-  return Module.jsToZval(target[property], rv);
- },
- 1186621: $0 => {
-  const target = Module.targets.get($0);
-  if (target) {
-   Module.tacked.delete(target);
-   Module.fRegistry.unregister(target);
-  }
+  return Module.jsToZval(target[property]);
  }
 };
 
@@ -1451,42 +1370,11 @@ function __asyncjs__pdo_cfd1_real_stmt_execute(targetId, rv) {
  }));
 }
 
-function __asyncjs__php_stream_fetch_real_open(path, _context, ptrsize, headersv, headersc) {
- return Asyncify.handleAsync((async () => {
-  const pathString = UTF8ToString(path);
-  const context = Module.targets.get(_context) || {};
-  const response = await fetch(pathString, context);
-  const buffer = new Uint8Array(await response.arrayBuffer());
-  const status = response.status;
-  const headerLines = [ ...response.headers.entries() ].map((([key, val]) => `${key}: ${val}`));
-  headerLines.unshift(`HTTP/1.1 ${response.status} ${response.statusText}`);
-  const headersloc = _malloc(ptrsize * headerLines.length);
-  setValue(headersv, headersloc, "*");
-  setValue(headersc, headerLines.length, "i32");
-  let i = 0;
-  for (const line of headerLines) {
-   const len = lengthBytesUTF8(line);
-   const loc = _malloc(len);
-   stringToUTF8(line, loc, len);
-   setValue(headersloc + i * ptrsize, loc, "i" + 8 * ptrsize);
-   i++;
-  }
-  const parsed = {
-   status: status,
-   buffer: buffer,
-   context: context
-  };
-  Module.tacked.add(parsed);
-  Module.tacked.delete(context);
-  return Module.targets.add(parsed);
- }));
-}
-
-function __asyncjs__vrzno_await_internal(targetId, rv) {
+function __asyncjs__vrzno_await_internal(targetId) {
  return Asyncify.handleAsync((async () => {
   const target = Module.targets.get(targetId);
   const result = await target;
-  Module.jsToZval(result, rv);
+  return Module.jsToZval(result);
  }));
 }
 
@@ -1531,45 +1419,6 @@ function getValue(ptr, type = "i8") {
 
  default:
   abort(`invalid type for getValue: ${type}`);
- }
-}
-
-function setValue(ptr, value, type = "i8") {
- if (type.endsWith("*")) type = "*";
- switch (type) {
- case "i1":
-  HEAP8[ptr >>> 0] = value;
-  break;
-
- case "i8":
-  HEAP8[ptr >>> 0] = value;
-  break;
-
- case "i16":
-  HEAP16[ptr >>> 1] = value;
-  break;
-
- case "i32":
-  HEAP32[ptr >>> 2] = value;
-  break;
-
- case "i64":
-  abort("to do setValue(i64) use WASM_BIGINT");
-
- case "float":
-  HEAPF32[ptr >>> 2] = value;
-  break;
-
- case "double":
-  HEAPF64[ptr >>> 3] = value;
-  break;
-
- case "*":
-  HEAPU32[ptr >>> 2] = value;
-  break;
-
- default:
-  abort(`invalid type for setValue: ${type}`);
  }
 }
 
@@ -7482,7 +7331,6 @@ Module["FS_createDevice"] = FS.createDevice;
 var wasmImports = {
  __assert_fail: ___assert_fail,
  __asyncjs__pdo_cfd1_real_stmt_execute: __asyncjs__pdo_cfd1_real_stmt_execute,
- __asyncjs__php_stream_fetch_real_open: __asyncjs__php_stream_fetch_real_open,
  __asyncjs__vrzno_await_internal: __asyncjs__vrzno_await_internal,
  __call_sighandler: ___call_sighandler,
  __syscall__newselect: ___syscall__newselect,
@@ -12751,16 +12599,8 @@ var _vrzno_expose_dec_refcount = Module["_vrzno_expose_dec_refcount"] = function
  return (_vrzno_expose_dec_refcount = Module["_vrzno_expose_dec_refcount"] = Module["asm"]["vrzno_expose_dec_refcount"]).apply(null, arguments);
 };
 
-var _vrzno_expose_zrefcount = Module["_vrzno_expose_zrefcount"] = function() {
- return (_vrzno_expose_zrefcount = Module["_vrzno_expose_zrefcount"] = Module["asm"]["vrzno_expose_zrefcount"]).apply(null, arguments);
-};
-
-var _vrzno_expose_inc_crefcount = Module["_vrzno_expose_inc_crefcount"] = function() {
- return (_vrzno_expose_inc_crefcount = Module["_vrzno_expose_inc_crefcount"] = Module["asm"]["vrzno_expose_inc_crefcount"]).apply(null, arguments);
-};
-
-var _vrzno_expose_dec_crefcount = Module["_vrzno_expose_dec_crefcount"] = function() {
- return (_vrzno_expose_dec_crefcount = Module["_vrzno_expose_dec_crefcount"] = Module["asm"]["vrzno_expose_dec_crefcount"]).apply(null, arguments);
+var _vrzno_expose_refcount = Module["_vrzno_expose_refcount"] = function() {
+ return (_vrzno_expose_refcount = Module["_vrzno_expose_refcount"] = Module["asm"]["vrzno_expose_refcount"]).apply(null, arguments);
 };
 
 var _vrzno_expose_efree = Module["_vrzno_expose_efree"] = function() {
@@ -12799,16 +12639,16 @@ var _vrzno_expose_create_params = Module["_vrzno_expose_create_params"] = functi
  return (_vrzno_expose_create_params = Module["_vrzno_expose_create_params"] = Module["asm"]["vrzno_expose_create_params"]).apply(null, arguments);
 };
 
+var _vrzno_expose_set_param = Module["_vrzno_expose_set_param"] = function() {
+ return (_vrzno_expose_set_param = Module["_vrzno_expose_set_param"] = Module["asm"]["vrzno_expose_set_param"]).apply(null, arguments);
+};
+
+var _vrzno_expose_zval_is_target = Module["_vrzno_expose_zval_is_target"] = function() {
+ return (_vrzno_expose_zval_is_target = Module["_vrzno_expose_zval_is_target"] = Module["asm"]["vrzno_expose_zval_is_target"]).apply(null, arguments);
+};
+
 var _vrzno_expose_object_keys = Module["_vrzno_expose_object_keys"] = function() {
  return (_vrzno_expose_object_keys = Module["_vrzno_expose_object_keys"] = Module["asm"]["vrzno_expose_object_keys"]).apply(null, arguments);
-};
-
-var _vrzno_expose_array_keys = Module["_vrzno_expose_array_keys"] = function() {
- return (_vrzno_expose_array_keys = Module["_vrzno_expose_array_keys"] = Module["asm"]["vrzno_expose_array_keys"]).apply(null, arguments);
-};
-
-var _vrzno_expose_zval_deref = Module["_vrzno_expose_zval_deref"] = function() {
- return (_vrzno_expose_zval_deref = Module["_vrzno_expose_zval_deref"] = Module["asm"]["vrzno_expose_zval_deref"]).apply(null, arguments);
 };
 
 var _vrzno_expose_zval_dump = Module["_vrzno_expose_zval_dump"] = function() {
@@ -12817,14 +12657,6 @@ var _vrzno_expose_zval_dump = Module["_vrzno_expose_zval_dump"] = function() {
 
 var _vrzno_expose_type = Module["_vrzno_expose_type"] = function() {
  return (_vrzno_expose_type = Module["_vrzno_expose_type"] = Module["asm"]["vrzno_expose_type"]).apply(null, arguments);
-};
-
-var _vrzno_expose_array_length = Module["_vrzno_expose_array_length"] = function() {
- return (_vrzno_expose_array_length = Module["_vrzno_expose_array_length"] = Module["asm"]["vrzno_expose_array_length"]).apply(null, arguments);
-};
-
-var _vrzno_expose_target = Module["_vrzno_expose_target"] = function() {
- return (_vrzno_expose_target = Module["_vrzno_expose_target"] = Module["asm"]["vrzno_expose_target"]).apply(null, arguments);
 };
 
 var _vrzno_expose_callable = Module["_vrzno_expose_callable"] = function() {
@@ -12843,20 +12675,28 @@ var _vrzno_expose_string = Module["_vrzno_expose_string"] = function() {
  return (_vrzno_expose_string = Module["_vrzno_expose_string"] = Module["asm"]["vrzno_expose_string"]).apply(null, arguments);
 };
 
-var _vrzno_expose_key_pointer = Module["_vrzno_expose_key_pointer"] = function() {
- return (_vrzno_expose_key_pointer = Module["_vrzno_expose_key_pointer"] = Module["asm"]["vrzno_expose_key_pointer"]).apply(null, arguments);
+var _vrzno_expose_property_type = Module["_vrzno_expose_property_type"] = function() {
+ return (_vrzno_expose_property_type = Module["_vrzno_expose_property_type"] = Module["asm"]["vrzno_expose_property_type"]).apply(null, arguments);
+};
+
+var _vrzno_expose_property_callable = Module["_vrzno_expose_property_callable"] = function() {
+ return (_vrzno_expose_property_callable = Module["_vrzno_expose_property_callable"] = Module["asm"]["vrzno_expose_property_callable"]).apply(null, arguments);
+};
+
+var _vrzno_expose_property_long = Module["_vrzno_expose_property_long"] = function() {
+ return (_vrzno_expose_property_long = Module["_vrzno_expose_property_long"] = Module["asm"]["vrzno_expose_property_long"]).apply(null, arguments);
+};
+
+var _vrzno_expose_property_double = Module["_vrzno_expose_property_double"] = function() {
+ return (_vrzno_expose_property_double = Module["_vrzno_expose_property_double"] = Module["asm"]["vrzno_expose_property_double"]).apply(null, arguments);
+};
+
+var _vrzno_expose_property_string = Module["_vrzno_expose_property_string"] = function() {
+ return (_vrzno_expose_property_string = Module["_vrzno_expose_property_string"] = Module["asm"]["vrzno_expose_property_string"]).apply(null, arguments);
 };
 
 var _vrzno_expose_property_pointer = Module["_vrzno_expose_property_pointer"] = function() {
  return (_vrzno_expose_property_pointer = Module["_vrzno_expose_property_pointer"] = Module["asm"]["vrzno_expose_property_pointer"]).apply(null, arguments);
-};
-
-var _vrzno_expose_dimension_pointer = Module["_vrzno_expose_dimension_pointer"] = function() {
- return (_vrzno_expose_dimension_pointer = Module["_vrzno_expose_dimension_pointer"] = Module["asm"]["vrzno_expose_dimension_pointer"]).apply(null, arguments);
-};
-
-var _vrzno_expose_method_pointer = Module["_vrzno_expose_method_pointer"] = function() {
- return (_vrzno_expose_method_pointer = Module["_vrzno_expose_method_pointer"] = Module["asm"]["vrzno_expose_method_pointer"]).apply(null, arguments);
 };
 
 var _zend_register_internal_class = Module["_zend_register_internal_class"] = function() {
@@ -19731,555 +19571,555 @@ var _asyncify_stop_rewind = function() {
  return (_asyncify_stop_rewind = Module["asm"]["asyncify_stop_rewind"]).apply(null, arguments);
 };
 
-var _executor_globals = Module["_executor_globals"] = 1283712;
+var _executor_globals = Module["_executor_globals"] = 1279424;
 
-var _zend_empty_string = Module["_zend_empty_string"] = 1284912;
+var _zend_empty_string = Module["_zend_empty_string"] = 1280624;
 
-var _std_object_handlers = Module["_std_object_handlers"] = 1122860;
+var _std_object_handlers = Module["_std_object_handlers"] = 1121340;
 
-var _zend_ce_aggregate = Module["_zend_ce_aggregate"] = 1274712;
+var _zend_ce_aggregate = Module["_zend_ce_aggregate"] = 1270424;
 
-var _zend_ce_error = Module["_zend_ce_error"] = 1283052;
+var _zend_ce_error = Module["_zend_ce_error"] = 1278764;
 
-var _zend_ce_exception = Module["_zend_ce_exception"] = 1278244;
+var _zend_ce_exception = Module["_zend_ce_exception"] = 1273956;
 
-var _zend_string_init_interned = Module["_zend_string_init_interned"] = 1283704;
+var _zend_string_init_interned = Module["_zend_string_init_interned"] = 1279416;
 
-var _basic_globals = Module["_basic_globals"] = 1269536;
+var _basic_globals = Module["_basic_globals"] = 1265248;
 
-var _pcre_globals = Module["_pcre_globals"] = 1188024;
+var _pcre_globals = Module["_pcre_globals"] = 1183736;
 
-var _zend_one_char_string = Module["_zend_one_char_string"] = 1274880;
+var _zend_one_char_string = Module["_zend_one_char_string"] = 1270592;
 
-var _sapi_module = Module["_sapi_module"] = 1271116;
+var _sapi_module = Module["_sapi_module"] = 1266828;
 
-var _php_hashcontext_ce = Module["_php_hashcontext_ce"] = 1188240;
+var _php_hashcontext_ce = Module["_php_hashcontext_ce"] = 1183952;
 
-var _file_globals = Module["_file_globals"] = 1271408;
+var _file_globals = Module["_file_globals"] = 1267120;
 
-var _compiler_globals = Module["_compiler_globals"] = 1284916;
+var _compiler_globals = Module["_compiler_globals"] = 1280628;
 
-var _zend_known_strings = Module["_zend_known_strings"] = 1282924;
+var _zend_known_strings = Module["_zend_known_strings"] = 1278636;
 
-var _zend_ce_value_error = Module["_zend_ce_value_error"] = 1273716;
+var _zend_ce_value_error = Module["_zend_ce_value_error"] = 1269428;
 
-var _json_globals = Module["_json_globals"] = 1188344;
+var _json_globals = Module["_json_globals"] = 1184056;
 
-var _php_json_exception_ce = Module["_php_json_exception_ce"] = 1188356;
+var _php_json_exception_ce = Module["_php_json_exception_ce"] = 1184068;
 
-var _php_json_serializable_ce = Module["_php_json_serializable_ce"] = 1191120;
+var _php_json_serializable_ce = Module["_php_json_serializable_ce"] = 1186832;
 
-var _core_globals = Module["_core_globals"] = 1283240;
+var _core_globals = Module["_core_globals"] = 1278952;
 
-var _zend_empty_array = Module["_zend_empty_array"] = 1122420;
+var _zend_empty_array = Module["_zend_empty_array"] = 1120900;
 
-var _module_registry = Module["_module_registry"] = 1283192;
+var _module_registry = Module["_module_registry"] = 1278904;
 
-var _spl_ce_RuntimeException = Module["_spl_ce_RuntimeException"] = 1191224;
+var _spl_ce_RuntimeException = Module["_spl_ce_RuntimeException"] = 1186936;
 
-var _zend_observer_fcall_op_array_extension = Module["_zend_observer_fcall_op_array_extension"] = 1283640;
+var _zend_observer_fcall_op_array_extension = Module["_zend_observer_fcall_op_array_extension"] = 1279352;
 
-var _zend_standard_class_def = Module["_zend_standard_class_def"] = 1272916;
+var _zend_standard_class_def = Module["_zend_standard_class_def"] = 1268628;
 
-var _sapi_globals = Module["_sapi_globals"] = 1285264;
+var _sapi_globals = Module["_sapi_globals"] = 1280976;
 
-var _ps_globals = Module["_ps_globals"] = 1189576;
+var _ps_globals = Module["_ps_globals"] = 1185288;
 
-var _random_ce_Random_BrokenRandomEngineError = Module["_random_ce_Random_BrokenRandomEngineError"] = 1261012;
+var _random_ce_Random_BrokenRandomEngineError = Module["_random_ce_Random_BrokenRandomEngineError"] = 1256724;
 
-var _php_random_algo_mt19937 = Module["_php_random_algo_mt19937"] = 808412;
+var _php_random_algo_mt19937 = Module["_php_random_algo_mt19937"] = 807132;
 
-var _random_globals = Module["_random_globals"] = 1189292;
+var _random_globals = Module["_random_globals"] = 1185004;
 
-var _php_random_algo_combinedlcg = Module["_php_random_algo_combinedlcg"] = 808224;
+var _php_random_algo_combinedlcg = Module["_php_random_algo_combinedlcg"] = 806944;
 
-var _random_ce_Random_Engine = Module["_random_ce_Random_Engine"] = 1189312;
+var _random_ce_Random_Engine = Module["_random_ce_Random_Engine"] = 1185024;
 
-var _random_ce_Random_CryptoSafeEngine = Module["_random_ce_Random_CryptoSafeEngine"] = 1188772;
+var _random_ce_Random_CryptoSafeEngine = Module["_random_ce_Random_CryptoSafeEngine"] = 1184484;
 
-var _random_ce_Random_RandomError = Module["_random_ce_Random_RandomError"] = 1188776;
+var _random_ce_Random_RandomError = Module["_random_ce_Random_RandomError"] = 1184488;
 
-var _random_ce_Random_RandomException = Module["_random_ce_Random_RandomException"] = 1189328;
+var _random_ce_Random_RandomException = Module["_random_ce_Random_RandomException"] = 1185040;
 
-var _random_ce_Random_Engine_Mt19937 = Module["_random_ce_Random_Engine_Mt19937"] = 1188780;
+var _random_ce_Random_Engine_Mt19937 = Module["_random_ce_Random_Engine_Mt19937"] = 1184492;
 
-var _random_ce_Random_Engine_PcgOneseq128XslRr64 = Module["_random_ce_Random_Engine_PcgOneseq128XslRr64"] = 1188884;
+var _random_ce_Random_Engine_PcgOneseq128XslRr64 = Module["_random_ce_Random_Engine_PcgOneseq128XslRr64"] = 1184596;
 
-var _random_ce_Random_Engine_Xoshiro256StarStar = Module["_random_ce_Random_Engine_Xoshiro256StarStar"] = 1188988;
+var _random_ce_Random_Engine_Xoshiro256StarStar = Module["_random_ce_Random_Engine_Xoshiro256StarStar"] = 1184700;
 
-var _random_ce_Random_Engine_Secure = Module["_random_ce_Random_Engine_Secure"] = 1189316;
+var _random_ce_Random_Engine_Secure = Module["_random_ce_Random_Engine_Secure"] = 1185028;
 
-var _random_ce_Random_Randomizer = Module["_random_ce_Random_Randomizer"] = 1189320;
+var _random_ce_Random_Randomizer = Module["_random_ce_Random_Randomizer"] = 1185032;
 
-var _random_ce_Random_IntervalBoundary = Module["_random_ce_Random_IntervalBoundary"] = 1189324;
+var _random_ce_Random_IntervalBoundary = Module["_random_ce_Random_IntervalBoundary"] = 1185036;
 
-var _php_random_algo_pcgoneseq128xslrr64 = Module["_php_random_algo_pcgoneseq128xslrr64"] = 808252;
+var _php_random_algo_pcgoneseq128xslrr64 = Module["_php_random_algo_pcgoneseq128xslrr64"] = 806972;
 
-var _php_random_algo_xoshiro256starstar = Module["_php_random_algo_xoshiro256starstar"] = 808280;
+var _php_random_algo_xoshiro256starstar = Module["_php_random_algo_xoshiro256starstar"] = 807e3;
 
-var _php_random_algo_secure = Module["_php_random_algo_secure"] = 808384;
+var _php_random_algo_secure = Module["_php_random_algo_secure"] = 807104;
 
-var _php_random_algo_user = Module["_php_random_algo_user"] = 808440;
+var _php_random_algo_user = Module["_php_random_algo_user"] = 807160;
 
-var _reflection_enum_ptr = Module["_reflection_enum_ptr"] = 1189332;
+var _reflection_enum_ptr = Module["_reflection_enum_ptr"] = 1185044;
 
-var _reflection_class_ptr = Module["_reflection_class_ptr"] = 1189336;
+var _reflection_class_ptr = Module["_reflection_class_ptr"] = 1185048;
 
-var _reflection_exception_ptr = Module["_reflection_exception_ptr"] = 1189340;
+var _reflection_exception_ptr = Module["_reflection_exception_ptr"] = 1185052;
 
-var _zend_ce_closure = Module["_zend_ce_closure"] = 1283652;
+var _zend_ce_closure = Module["_zend_ce_closure"] = 1279364;
 
-var _zend_ce_generator = Module["_zend_ce_generator"] = 1283656;
+var _zend_ce_generator = Module["_zend_ce_generator"] = 1279368;
 
-var _zend_ce_traversable = Module["_zend_ce_traversable"] = 1273488;
+var _zend_ce_traversable = Module["_zend_ce_traversable"] = 1269200;
 
-var _reflection_reference_ptr = Module["_reflection_reference_ptr"] = 1189344;
+var _reflection_reference_ptr = Module["_reflection_reference_ptr"] = 1185056;
 
-var _zend_ce_fiber = Module["_zend_ce_fiber"] = 1282944;
+var _zend_ce_fiber = Module["_zend_ce_fiber"] = 1278656;
 
-var _reflection_ptr = Module["_reflection_ptr"] = 1189468;
+var _reflection_ptr = Module["_reflection_ptr"] = 1185180;
 
-var _zend_ce_stringable = Module["_zend_ce_stringable"] = 1282380;
+var _zend_ce_stringable = Module["_zend_ce_stringable"] = 1278092;
 
-var _reflector_ptr = Module["_reflector_ptr"] = 1189472;
+var _reflector_ptr = Module["_reflector_ptr"] = 1185184;
 
-var _reflection_function_abstract_ptr = Module["_reflection_function_abstract_ptr"] = 1189476;
+var _reflection_function_abstract_ptr = Module["_reflection_function_abstract_ptr"] = 1185188;
 
-var _reflection_function_ptr = Module["_reflection_function_ptr"] = 1189480;
+var _reflection_function_ptr = Module["_reflection_function_ptr"] = 1185192;
 
-var _reflection_generator_ptr = Module["_reflection_generator_ptr"] = 1189484;
+var _reflection_generator_ptr = Module["_reflection_generator_ptr"] = 1185196;
 
-var _reflection_parameter_ptr = Module["_reflection_parameter_ptr"] = 1189488;
+var _reflection_parameter_ptr = Module["_reflection_parameter_ptr"] = 1185200;
 
-var _reflection_type_ptr = Module["_reflection_type_ptr"] = 1189492;
+var _reflection_type_ptr = Module["_reflection_type_ptr"] = 1185204;
 
-var _reflection_named_type_ptr = Module["_reflection_named_type_ptr"] = 1189496;
+var _reflection_named_type_ptr = Module["_reflection_named_type_ptr"] = 1185208;
 
-var _reflection_union_type_ptr = Module["_reflection_union_type_ptr"] = 1189500;
+var _reflection_union_type_ptr = Module["_reflection_union_type_ptr"] = 1185212;
 
-var _reflection_intersection_type_ptr = Module["_reflection_intersection_type_ptr"] = 1189504;
+var _reflection_intersection_type_ptr = Module["_reflection_intersection_type_ptr"] = 1185216;
 
-var _reflection_method_ptr = Module["_reflection_method_ptr"] = 1189508;
+var _reflection_method_ptr = Module["_reflection_method_ptr"] = 1185220;
 
-var _reflection_object_ptr = Module["_reflection_object_ptr"] = 1189512;
+var _reflection_object_ptr = Module["_reflection_object_ptr"] = 1185224;
 
-var _reflection_property_ptr = Module["_reflection_property_ptr"] = 1189516;
+var _reflection_property_ptr = Module["_reflection_property_ptr"] = 1185228;
 
-var _reflection_class_constant_ptr = Module["_reflection_class_constant_ptr"] = 1189520;
+var _reflection_class_constant_ptr = Module["_reflection_class_constant_ptr"] = 1185232;
 
-var _reflection_extension_ptr = Module["_reflection_extension_ptr"] = 1189524;
+var _reflection_extension_ptr = Module["_reflection_extension_ptr"] = 1185236;
 
-var _reflection_zend_extension_ptr = Module["_reflection_zend_extension_ptr"] = 1189528;
+var _reflection_zend_extension_ptr = Module["_reflection_zend_extension_ptr"] = 1185240;
 
-var _reflection_attribute_ptr = Module["_reflection_attribute_ptr"] = 1189532;
+var _reflection_attribute_ptr = Module["_reflection_attribute_ptr"] = 1185244;
 
-var _reflection_enum_unit_case_ptr = Module["_reflection_enum_unit_case_ptr"] = 1189536;
+var _reflection_enum_unit_case_ptr = Module["_reflection_enum_unit_case_ptr"] = 1185248;
 
-var _reflection_enum_backed_case_ptr = Module["_reflection_enum_backed_case_ptr"] = 1189540;
+var _reflection_enum_backed_case_ptr = Module["_reflection_enum_backed_case_ptr"] = 1185252;
 
-var _reflection_fiber_ptr = Module["_reflection_fiber_ptr"] = 1189544;
+var _reflection_fiber_ptr = Module["_reflection_fiber_ptr"] = 1185256;
 
-var _php_session_iface_entry = Module["_php_session_iface_entry"] = 1189548;
+var _php_session_iface_entry = Module["_php_session_iface_entry"] = 1185260;
 
-var _php_session_id_iface_entry = Module["_php_session_id_iface_entry"] = 1189552;
+var _php_session_id_iface_entry = Module["_php_session_id_iface_entry"] = 1185264;
 
-var _php_session_update_timestamp_iface_entry = Module["_php_session_update_timestamp_iface_entry"] = 1189556;
+var _php_session_update_timestamp_iface_entry = Module["_php_session_update_timestamp_iface_entry"] = 1185268;
 
-var _php_session_class_entry = Module["_php_session_class_entry"] = 1189560;
+var _php_session_class_entry = Module["_php_session_class_entry"] = 1185272;
 
-var _php_rfc1867_callback = Module["_php_rfc1867_callback"] = 1270932;
+var _php_rfc1867_callback = Module["_php_rfc1867_callback"] = 1266644;
 
-var _spl_ce_AppendIterator = Module["_spl_ce_AppendIterator"] = 1189964;
+var _spl_ce_AppendIterator = Module["_spl_ce_AppendIterator"] = 1185676;
 
-var _spl_ce_ArrayIterator = Module["_spl_ce_ArrayIterator"] = 1190176;
+var _spl_ce_ArrayIterator = Module["_spl_ce_ArrayIterator"] = 1185888;
 
-var _spl_ce_ArrayObject = Module["_spl_ce_ArrayObject"] = 1190180;
+var _spl_ce_ArrayObject = Module["_spl_ce_ArrayObject"] = 1185892;
 
-var _spl_ce_BadFunctionCallException = Module["_spl_ce_BadFunctionCallException"] = 1190628;
+var _spl_ce_BadFunctionCallException = Module["_spl_ce_BadFunctionCallException"] = 1186340;
 
-var _spl_ce_BadMethodCallException = Module["_spl_ce_BadMethodCallException"] = 1190632;
+var _spl_ce_BadMethodCallException = Module["_spl_ce_BadMethodCallException"] = 1186344;
 
-var _spl_ce_CachingIterator = Module["_spl_ce_CachingIterator"] = 1189944;
+var _spl_ce_CachingIterator = Module["_spl_ce_CachingIterator"] = 1185656;
 
-var _spl_ce_CallbackFilterIterator = Module["_spl_ce_CallbackFilterIterator"] = 1189916;
+var _spl_ce_CallbackFilterIterator = Module["_spl_ce_CallbackFilterIterator"] = 1185628;
 
-var _spl_ce_DirectoryIterator = Module["_spl_ce_DirectoryIterator"] = 1190500;
+var _spl_ce_DirectoryIterator = Module["_spl_ce_DirectoryIterator"] = 1186212;
 
-var _spl_ce_DomainException = Module["_spl_ce_DomainException"] = 1190636;
+var _spl_ce_DomainException = Module["_spl_ce_DomainException"] = 1186348;
 
-var _spl_ce_EmptyIterator = Module["_spl_ce_EmptyIterator"] = 1190172;
+var _spl_ce_EmptyIterator = Module["_spl_ce_EmptyIterator"] = 1185884;
 
-var _spl_ce_FilesystemIterator = Module["_spl_ce_FilesystemIterator"] = 1190504;
+var _spl_ce_FilesystemIterator = Module["_spl_ce_FilesystemIterator"] = 1186216;
 
-var _spl_ce_FilterIterator = Module["_spl_ce_FilterIterator"] = 1189912;
+var _spl_ce_FilterIterator = Module["_spl_ce_FilterIterator"] = 1185624;
 
-var _spl_ce_GlobIterator = Module["_spl_ce_GlobIterator"] = 1190616;
+var _spl_ce_GlobIterator = Module["_spl_ce_GlobIterator"] = 1186328;
 
-var _spl_ce_InfiniteIterator = Module["_spl_ce_InfiniteIterator"] = 1189960;
+var _spl_ce_InfiniteIterator = Module["_spl_ce_InfiniteIterator"] = 1185672;
 
-var _spl_ce_InvalidArgumentException = Module["_spl_ce_InvalidArgumentException"] = 1191112;
+var _spl_ce_InvalidArgumentException = Module["_spl_ce_InvalidArgumentException"] = 1186824;
 
-var _spl_ce_IteratorIterator = Module["_spl_ce_IteratorIterator"] = 1189952;
+var _spl_ce_IteratorIterator = Module["_spl_ce_IteratorIterator"] = 1185664;
 
-var _spl_ce_LengthException = Module["_spl_ce_LengthException"] = 1190640;
+var _spl_ce_LengthException = Module["_spl_ce_LengthException"] = 1186352;
 
-var _spl_ce_LimitIterator = Module["_spl_ce_LimitIterator"] = 1189940;
+var _spl_ce_LimitIterator = Module["_spl_ce_LimitIterator"] = 1185652;
 
-var _spl_ce_LogicException = Module["_spl_ce_LogicException"] = 1190624;
+var _spl_ce_LogicException = Module["_spl_ce_LogicException"] = 1186336;
 
-var _spl_ce_MultipleIterator = Module["_spl_ce_MultipleIterator"] = 1190772;
+var _spl_ce_MultipleIterator = Module["_spl_ce_MultipleIterator"] = 1186484;
 
-var _spl_ce_NoRewindIterator = Module["_spl_ce_NoRewindIterator"] = 1189956;
+var _spl_ce_NoRewindIterator = Module["_spl_ce_NoRewindIterator"] = 1185668;
 
-var _spl_ce_OuterIterator = Module["_spl_ce_OuterIterator"] = 1189968;
+var _spl_ce_OuterIterator = Module["_spl_ce_OuterIterator"] = 1185680;
 
-var _spl_ce_OutOfBoundsException = Module["_spl_ce_OutOfBoundsException"] = 1190644;
+var _spl_ce_OutOfBoundsException = Module["_spl_ce_OutOfBoundsException"] = 1186356;
 
-var _spl_ce_OutOfRangeException = Module["_spl_ce_OutOfRangeException"] = 1190776;
+var _spl_ce_OutOfRangeException = Module["_spl_ce_OutOfRangeException"] = 1186488;
 
-var _spl_ce_OverflowException = Module["_spl_ce_OverflowException"] = 1190648;
+var _spl_ce_OverflowException = Module["_spl_ce_OverflowException"] = 1186360;
 
-var _spl_ce_ParentIterator = Module["_spl_ce_ParentIterator"] = 1189928;
+var _spl_ce_ParentIterator = Module["_spl_ce_ParentIterator"] = 1185640;
 
-var _spl_ce_RangeException = Module["_spl_ce_RangeException"] = 1190652;
+var _spl_ce_RangeException = Module["_spl_ce_RangeException"] = 1186364;
 
-var _spl_ce_RecursiveArrayIterator = Module["_spl_ce_RecursiveArrayIterator"] = 1190384;
+var _spl_ce_RecursiveArrayIterator = Module["_spl_ce_RecursiveArrayIterator"] = 1186096;
 
-var _spl_ce_RecursiveCachingIterator = Module["_spl_ce_RecursiveCachingIterator"] = 1189948;
+var _spl_ce_RecursiveCachingIterator = Module["_spl_ce_RecursiveCachingIterator"] = 1185660;
 
-var _spl_ce_RecursiveCallbackFilterIterator = Module["_spl_ce_RecursiveCallbackFilterIterator"] = 1189920;
+var _spl_ce_RecursiveCallbackFilterIterator = Module["_spl_ce_RecursiveCallbackFilterIterator"] = 1185632;
 
-var _spl_ce_RecursiveDirectoryIterator = Module["_spl_ce_RecursiveDirectoryIterator"] = 1190512;
+var _spl_ce_RecursiveDirectoryIterator = Module["_spl_ce_RecursiveDirectoryIterator"] = 1186224;
 
-var _spl_ce_RecursiveFilterIterator = Module["_spl_ce_RecursiveFilterIterator"] = 1189924;
+var _spl_ce_RecursiveFilterIterator = Module["_spl_ce_RecursiveFilterIterator"] = 1185636;
 
-var _spl_ce_RecursiveIterator = Module["_spl_ce_RecursiveIterator"] = 1190508;
+var _spl_ce_RecursiveIterator = Module["_spl_ce_RecursiveIterator"] = 1186220;
 
-var _spl_ce_RecursiveIteratorIterator = Module["_spl_ce_RecursiveIteratorIterator"] = 1189904;
+var _spl_ce_RecursiveIteratorIterator = Module["_spl_ce_RecursiveIteratorIterator"] = 1185616;
 
-var _spl_ce_RecursiveRegexIterator = Module["_spl_ce_RecursiveRegexIterator"] = 1189936;
+var _spl_ce_RecursiveRegexIterator = Module["_spl_ce_RecursiveRegexIterator"] = 1185648;
 
-var _spl_ce_RecursiveTreeIterator = Module["_spl_ce_RecursiveTreeIterator"] = 1189908;
+var _spl_ce_RecursiveTreeIterator = Module["_spl_ce_RecursiveTreeIterator"] = 1185620;
 
-var _spl_ce_RegexIterator = Module["_spl_ce_RegexIterator"] = 1189932;
+var _spl_ce_RegexIterator = Module["_spl_ce_RegexIterator"] = 1185644;
 
-var _spl_ce_SeekableIterator = Module["_spl_ce_SeekableIterator"] = 1190496;
+var _spl_ce_SeekableIterator = Module["_spl_ce_SeekableIterator"] = 1186208;
 
-var _spl_ce_SplDoublyLinkedList = Module["_spl_ce_SplDoublyLinkedList"] = 1190784;
+var _spl_ce_SplDoublyLinkedList = Module["_spl_ce_SplDoublyLinkedList"] = 1186496;
 
-var _spl_ce_SplFileInfo = Module["_spl_ce_SplFileInfo"] = 1190392;
+var _spl_ce_SplFileInfo = Module["_spl_ce_SplFileInfo"] = 1186104;
 
-var _spl_ce_SplFileObject = Module["_spl_ce_SplFileObject"] = 1190388;
+var _spl_ce_SplFileObject = Module["_spl_ce_SplFileObject"] = 1186100;
 
-var _spl_ce_SplFixedArray = Module["_spl_ce_SplFixedArray"] = 1191116;
+var _spl_ce_SplFixedArray = Module["_spl_ce_SplFixedArray"] = 1186828;
 
-var _spl_ce_SplHeap = Module["_spl_ce_SplHeap"] = 1190896;
+var _spl_ce_SplHeap = Module["_spl_ce_SplHeap"] = 1186608;
 
-var _spl_ce_SplMinHeap = Module["_spl_ce_SplMinHeap"] = 1191004;
+var _spl_ce_SplMinHeap = Module["_spl_ce_SplMinHeap"] = 1186716;
 
-var _spl_ce_SplMaxHeap = Module["_spl_ce_SplMaxHeap"] = 1191008;
+var _spl_ce_SplMaxHeap = Module["_spl_ce_SplMaxHeap"] = 1186720;
 
-var _spl_ce_SplObjectStorage = Module["_spl_ce_SplObjectStorage"] = 1190660;
+var _spl_ce_SplObjectStorage = Module["_spl_ce_SplObjectStorage"] = 1186372;
 
-var _spl_ce_SplObserver = Module["_spl_ce_SplObserver"] = 1190664;
+var _spl_ce_SplObserver = Module["_spl_ce_SplObserver"] = 1186376;
 
-var _spl_ce_SplPriorityQueue = Module["_spl_ce_SplPriorityQueue"] = 1190900;
+var _spl_ce_SplPriorityQueue = Module["_spl_ce_SplPriorityQueue"] = 1186612;
 
-var _spl_ce_SplQueue = Module["_spl_ce_SplQueue"] = 1190888;
+var _spl_ce_SplQueue = Module["_spl_ce_SplQueue"] = 1186600;
 
-var _spl_ce_SplStack = Module["_spl_ce_SplStack"] = 1190892;
+var _spl_ce_SplStack = Module["_spl_ce_SplStack"] = 1186604;
 
-var _spl_ce_SplSubject = Module["_spl_ce_SplSubject"] = 1190668;
+var _spl_ce_SplSubject = Module["_spl_ce_SplSubject"] = 1186380;
 
-var _spl_ce_SplTempFileObject = Module["_spl_ce_SplTempFileObject"] = 1190620;
+var _spl_ce_SplTempFileObject = Module["_spl_ce_SplTempFileObject"] = 1186332;
 
-var _spl_ce_UnderflowException = Module["_spl_ce_UnderflowException"] = 1190656;
+var _spl_ce_UnderflowException = Module["_spl_ce_UnderflowException"] = 1186368;
 
-var _spl_ce_UnexpectedValueException = Module["_spl_ce_UnexpectedValueException"] = 1190780;
+var _spl_ce_UnexpectedValueException = Module["_spl_ce_UnexpectedValueException"] = 1186492;
 
-var _zend_autoload = Module["_zend_autoload"] = 1271504;
+var _zend_autoload = Module["_zend_autoload"] = 1267216;
 
-var _zend_compile_file = Module["_zend_compile_file"] = 1282804;
+var _zend_compile_file = Module["_zend_compile_file"] = 1278516;
 
-var _zend_ce_iterator = Module["_zend_ce_iterator"] = 1278140;
+var _zend_ce_iterator = Module["_zend_ce_iterator"] = 1273852;
 
-var _zend_ce_arrayaccess = Module["_zend_ce_arrayaccess"] = 1274704;
+var _zend_ce_arrayaccess = Module["_zend_ce_arrayaccess"] = 1270416;
 
-var _zend_ce_countable = Module["_zend_ce_countable"] = 1274708;
+var _zend_ce_countable = Module["_zend_ce_countable"] = 1270420;
 
-var _empty_fcall_info_cache = Module["_empty_fcall_info_cache"] = 1096960;
+var _empty_fcall_info_cache = Module["_empty_fcall_info_cache"] = 1095440;
 
-var _zend_ce_serializable = Module["_zend_ce_serializable"] = 1282928;
+var _zend_ce_serializable = Module["_zend_ce_serializable"] = 1278640;
 
-var _php_glob_stream_ops = Module["_php_glob_stream_ops"] = 1041164;
+var _php_glob_stream_ops = Module["_php_glob_stream_ops"] = 1039644;
 
-var _spl_handler_SplObjectStorage = Module["_spl_handler_SplObjectStorage"] = 1190672;
+var _spl_handler_SplObjectStorage = Module["_spl_handler_SplObjectStorage"] = 1186384;
 
-var _empty_fcall_info = Module["_empty_fcall_info"] = 1096912;
+var _empty_fcall_info = Module["_empty_fcall_info"] = 1095392;
 
-var _php_ce_incomplete_class = Module["_php_ce_incomplete_class"] = 1269516;
+var _php_ce_incomplete_class = Module["_php_ce_incomplete_class"] = 1265228;
 
-var _assertion_error_ce = Module["_assertion_error_ce"] = 1269400;
+var _assertion_error_ce = Module["_assertion_error_ce"] = 1265112;
 
-var _php_stream_php_wrapper = Module["_php_stream_php_wrapper"] = 1030520;
+var _php_stream_php_wrapper = Module["_php_stream_php_wrapper"] = 1029240;
 
-var _php_plain_files_wrapper = Module["_php_plain_files_wrapper"] = 1158316;
+var _php_plain_files_wrapper = Module["_php_plain_files_wrapper"] = 1156796;
 
-var _php_glob_stream_wrapper = Module["_php_glob_stream_wrapper"] = 1041244;
+var _php_glob_stream_wrapper = Module["_php_glob_stream_wrapper"] = 1039724;
 
-var _php_stream_rfc2397_wrapper = Module["_php_stream_rfc2397_wrapper"] = 1040776;
+var _php_stream_rfc2397_wrapper = Module["_php_stream_rfc2397_wrapper"] = 1039256;
 
-var _php_load_environment_variables = Module["_php_load_environment_variables"] = 1158272;
+var _php_load_environment_variables = Module["_php_load_environment_variables"] = 1156752;
 
-var _environ = Module["_environ"] = 1298336;
+var _environ = Module["_environ"] = 1294048;
 
-var _php_optidx = Module["_php_optidx"] = 1158284;
+var _php_optidx = Module["_php_optidx"] = 1156764;
 
-var _zend_new_interned_string = Module["_zend_new_interned_string"] = 1283644;
+var _zend_new_interned_string = Module["_zend_new_interned_string"] = 1279356;
 
-var _php_stream_stdio_ops = Module["_php_stream_stdio_ops"] = 1158328;
+var _php_stream_stdio_ops = Module["_php_stream_stdio_ops"] = 1156808;
 
-var _php_sig_gif = Module["_php_sig_gif"] = 1026544;
+var _php_sig_gif = Module["_php_sig_gif"] = 1025264;
 
-var _php_sig_psd = Module["_php_sig_psd"] = 1026547;
+var _php_sig_psd = Module["_php_sig_psd"] = 1025267;
 
-var _php_sig_bmp = Module["_php_sig_bmp"] = 1026551;
+var _php_sig_bmp = Module["_php_sig_bmp"] = 1025271;
 
-var _php_sig_swf = Module["_php_sig_swf"] = 1026553;
+var _php_sig_swf = Module["_php_sig_swf"] = 1025273;
 
-var _php_sig_swc = Module["_php_sig_swc"] = 1026556;
+var _php_sig_swc = Module["_php_sig_swc"] = 1025276;
 
-var _php_sig_jpg = Module["_php_sig_jpg"] = 1026559;
+var _php_sig_jpg = Module["_php_sig_jpg"] = 1025279;
 
-var _php_sig_png = Module["_php_sig_png"] = 1026562;
+var _php_sig_png = Module["_php_sig_png"] = 1025282;
 
-var _php_sig_tif_ii = Module["_php_sig_tif_ii"] = 1026570;
+var _php_sig_tif_ii = Module["_php_sig_tif_ii"] = 1025290;
 
-var _php_sig_tif_mm = Module["_php_sig_tif_mm"] = 1026574;
+var _php_sig_tif_mm = Module["_php_sig_tif_mm"] = 1025294;
 
-var _php_sig_jpc = Module["_php_sig_jpc"] = 1026578;
+var _php_sig_jpc = Module["_php_sig_jpc"] = 1025298;
 
-var _php_sig_jp2 = Module["_php_sig_jp2"] = 1026581;
+var _php_sig_jp2 = Module["_php_sig_jp2"] = 1025301;
 
-var _php_sig_iff = Module["_php_sig_iff"] = 1026593;
+var _php_sig_iff = Module["_php_sig_iff"] = 1025313;
 
-var _php_sig_ico = Module["_php_sig_ico"] = 1026597;
+var _php_sig_ico = Module["_php_sig_ico"] = 1025317;
 
-var _php_sig_riff = Module["_php_sig_riff"] = 1026601;
+var _php_sig_riff = Module["_php_sig_riff"] = 1025321;
 
-var _php_sig_webp = Module["_php_sig_webp"] = 1026605;
+var _php_sig_webp = Module["_php_sig_webp"] = 1025325;
 
-var _php_tiff_bytes_per_format = Module["_php_tiff_bytes_per_format"] = 1026624;
+var _php_tiff_bytes_per_format = Module["_php_tiff_bytes_per_format"] = 1025344;
 
-var _php_ini_opened_path = Module["_php_ini_opened_path"] = 1270804;
+var _php_ini_opened_path = Module["_php_ini_opened_path"] = 1266516;
 
-var _php_ini_scanned_path = Module["_php_ini_scanned_path"] = 1270808;
+var _php_ini_scanned_path = Module["_php_ini_scanned_path"] = 1266520;
 
-var _php_ini_scanned_files = Module["_php_ini_scanned_files"] = 1270812;
+var _php_ini_scanned_files = Module["_php_ini_scanned_files"] = 1266524;
 
-var _zend_ce_division_by_zero_error = Module["_zend_ce_division_by_zero_error"] = 1273724;
+var _zend_ce_division_by_zero_error = Module["_zend_ce_division_by_zero_error"] = 1269436;
 
-var _zend_ce_arithmetic_error = Module["_zend_ce_arithmetic_error"] = 1273720;
+var _zend_ce_arithmetic_error = Module["_zend_ce_arithmetic_error"] = 1269432;
 
-var _zend_tolower_map = Module["_zend_tolower_map"] = 1098656;
+var _zend_tolower_map = Module["_zend_tolower_map"] = 1097136;
 
-var _zend_toupper_map = Module["_zend_toupper_map"] = 1098912;
+var _zend_toupper_map = Module["_zend_toupper_map"] = 1097392;
 
-var _zend_write = Module["_zend_write"] = 1272968;
+var _zend_write = Module["_zend_write"] = 1268680;
 
-var _zend_ce_throwable = Module["_zend_ce_throwable"] = 1282948;
+var _zend_ce_throwable = Module["_zend_ce_throwable"] = 1278660;
 
-var _php_stream_ftp_wrapper = Module["_php_stream_ftp_wrapper"] = 1030336;
+var _php_stream_ftp_wrapper = Module["_php_stream_ftp_wrapper"] = 1029056;
 
-var _php_stream_http_wrapper = Module["_php_stream_http_wrapper"] = 1030392;
+var _php_stream_http_wrapper = Module["_php_stream_http_wrapper"] = 1029112;
 
-var _stdin = Module["_stdin"] = 1142668;
+var _stdin = Module["_stdin"] = 1141148;
 
-var _stdout = Module["_stdout"] = 1142672;
+var _stdout = Module["_stdout"] = 1141152;
 
-var _stderr = Module["_stderr"] = 1142664;
+var _stderr = Module["_stderr"] = 1141144;
 
-var _php_stream_socket_ops = Module["_php_stream_socket_ops"] = 1041020;
+var _php_stream_socket_ops = Module["_php_stream_socket_ops"] = 1039500;
 
-var _zend_string_init_existing_interned = Module["_zend_string_init_existing_interned"] = 1274864;
+var _zend_string_init_existing_interned = Module["_zend_string_init_existing_interned"] = 1270576;
 
-var _zend_resolve_path = Module["_zend_resolve_path"] = 1272920;
+var _zend_resolve_path = Module["_zend_resolve_path"] = 1268632;
 
-var _php_register_internal_extensions_func = Module["_php_register_internal_extensions_func"] = 1158256;
+var _php_register_internal_extensions_func = Module["_php_register_internal_extensions_func"] = 1156736;
 
-var _php_internal_encoding_changed = Module["_php_internal_encoding_changed"] = 1270796;
+var _php_internal_encoding_changed = Module["_php_internal_encoding_changed"] = 1266508;
 
-var _le_index_ptr = Module["_le_index_ptr"] = 1271692;
+var _le_index_ptr = Module["_le_index_ptr"] = 1267404;
 
-var _zend_post_shutdown_cb = Module["_zend_post_shutdown_cb"] = 1271512;
+var _zend_post_shutdown_cb = Module["_zend_post_shutdown_cb"] = 1267224;
 
-var _php_import_environment_variables = Module["_php_import_environment_variables"] = 1160428;
+var _php_import_environment_variables = Module["_php_import_environment_variables"] = 1158908;
 
-var _zend_printf = Module["_zend_printf"] = 1272976;
+var _zend_printf = Module["_zend_printf"] = 1268688;
 
-var _in6addr_any = Module["_in6addr_any"] = 1154012;
+var _in6addr_any = Module["_in6addr_any"] = 1152492;
 
-var _output_globals = Module["_output_globals"] = 1270948;
+var _output_globals = Module["_output_globals"] = 1266660;
 
-var _php_stream_memory_ops = Module["_php_stream_memory_ops"] = 1040624;
+var _php_stream_memory_ops = Module["_php_stream_memory_ops"] = 1039104;
 
-var _php_stream_temp_ops = Module["_php_stream_temp_ops"] = 1040660;
+var _php_stream_temp_ops = Module["_php_stream_temp_ops"] = 1039140;
 
-var _php_stream_userspace_ops = Module["_php_stream_userspace_ops"] = 1040912;
+var _php_stream_userspace_ops = Module["_php_stream_userspace_ops"] = 1039392;
 
-var _php_stream_rfc2397_ops = Module["_php_stream_rfc2397_ops"] = 1040696;
+var _php_stream_rfc2397_ops = Module["_php_stream_rfc2397_ops"] = 1039176;
 
-var _php_stream_rfc2397_wops = Module["_php_stream_rfc2397_wops"] = 1040732;
+var _php_stream_rfc2397_wops = Module["_php_stream_rfc2397_wops"] = 1039212;
 
-var _php_stream_userspace_dir_ops = Module["_php_stream_userspace_dir_ops"] = 1040948;
+var _php_stream_userspace_dir_ops = Module["_php_stream_userspace_dir_ops"] = 1039428;
 
-var _zend_ce_compile_error = Module["_zend_ce_compile_error"] = 1273596;
+var _zend_ce_compile_error = Module["_zend_ce_compile_error"] = 1269308;
 
-var _language_scanner_globals = Module["_language_scanner_globals"] = 1273016;
+var _language_scanner_globals = Module["_language_scanner_globals"] = 1268728;
 
-var _zend_ce_parse_error = Module["_zend_ce_parse_error"] = 1273592;
+var _zend_ce_parse_error = Module["_zend_ce_parse_error"] = 1269304;
 
-var _zend_multibyte_encoding_utf32be = Module["_zend_multibyte_encoding_utf32be"] = 1158736;
+var _zend_multibyte_encoding_utf32be = Module["_zend_multibyte_encoding_utf32be"] = 1157216;
 
-var _zend_multibyte_encoding_utf32le = Module["_zend_multibyte_encoding_utf32le"] = 1158740;
+var _zend_multibyte_encoding_utf32le = Module["_zend_multibyte_encoding_utf32le"] = 1157220;
 
-var _zend_multibyte_encoding_utf16be = Module["_zend_multibyte_encoding_utf16be"] = 1158744;
+var _zend_multibyte_encoding_utf16be = Module["_zend_multibyte_encoding_utf16be"] = 1157224;
 
-var _zend_multibyte_encoding_utf16le = Module["_zend_multibyte_encoding_utf16le"] = 1158748;
+var _zend_multibyte_encoding_utf16le = Module["_zend_multibyte_encoding_utf16le"] = 1157228;
 
-var _zend_multibyte_encoding_utf8 = Module["_zend_multibyte_encoding_utf8"] = 1158752;
+var _zend_multibyte_encoding_utf8 = Module["_zend_multibyte_encoding_utf8"] = 1157232;
 
-var _zend_ast_process = Module["_zend_ast_process"] = 1282800;
+var _zend_ast_process = Module["_zend_ast_process"] = 1278512;
 
-var _ini_scanner_globals = Module["_ini_scanner_globals"] = 1271544;
+var _ini_scanner_globals = Module["_ini_scanner_globals"] = 1267256;
 
-var _zend_getenv = Module["_zend_getenv"] = 1271532;
+var _zend_getenv = Module["_zend_getenv"] = 1267244;
 
-var _zend_execute_internal = Module["_zend_execute_internal"] = 1282812;
+var _zend_execute_internal = Module["_zend_execute_internal"] = 1278524;
 
-var _zend_execute_ex = Module["_zend_execute_ex"] = 1282808;
+var _zend_execute_ex = Module["_zend_execute_ex"] = 1278520;
 
-var _zend_compile_string = Module["_zend_compile_string"] = 1272924;
+var _zend_compile_string = Module["_zend_compile_string"] = 1268636;
 
-var _zend_observer_function_declared_observed = Module["_zend_observer_function_declared_observed"] = 1282608;
+var _zend_observer_function_declared_observed = Module["_zend_observer_function_declared_observed"] = 1278320;
 
-var _zend_observer_class_linked_observed = Module["_zend_observer_class_linked_observed"] = 1282609;
+var _zend_observer_class_linked_observed = Module["_zend_observer_class_linked_observed"] = 1278321;
 
-var _zend_extensions = Module["_zend_extensions"] = 1272928;
+var _zend_extensions = Module["_zend_extensions"] = 1268640;
 
-var _zend_interrupt_function = Module["_zend_interrupt_function"] = 1272912;
+var _zend_interrupt_function = Module["_zend_interrupt_function"] = 1268624;
 
-var _zend_on_timeout = Module["_zend_on_timeout"] = 1271528;
+var _zend_on_timeout = Module["_zend_on_timeout"] = 1267240;
 
-var _zend_op_array_extension_handles = Module["_zend_op_array_extension_handles"] = 1283648;
+var _zend_op_array_extension_handles = Module["_zend_op_array_extension_handles"] = 1279360;
 
-var _zend_extension_flags = Module["_zend_extension_flags"] = 1271640;
+var _zend_extension_flags = Module["_zend_extension_flags"] = 1267352;
 
-var _zend_post_startup_cb = Module["_zend_post_startup_cb"] = 1271508;
+var _zend_post_startup_cb = Module["_zend_post_startup_cb"] = 1267220;
 
-var _zend_error_cb = Module["_zend_error_cb"] = 1274372;
+var _zend_error_cb = Module["_zend_error_cb"] = 1270084;
 
-var _zend_fopen = Module["_zend_fopen"] = 1273160;
+var _zend_fopen = Module["_zend_fopen"] = 1268872;
 
-var _zend_stream_open_function = Module["_zend_stream_open_function"] = 1273156;
+var _zend_stream_open_function = Module["_zend_stream_open_function"] = 1268868;
 
-var _zend_ticks_function = Module["_zend_ticks_function"] = 1272956;
+var _zend_ticks_function = Module["_zend_ticks_function"] = 1268668;
 
-var _zend_throw_exception_hook = Module["_zend_throw_exception_hook"] = 1273600;
+var _zend_throw_exception_hook = Module["_zend_throw_exception_hook"] = 1269312;
 
-var _gc_collect_cycles = Module["_gc_collect_cycles"] = 1274496;
+var _gc_collect_cycles = Module["_gc_collect_cycles"] = 1270208;
 
-var _zend_uv = Module["_zend_uv"] = 1272972;
+var _zend_uv = Module["_zend_uv"] = 1268684;
 
-var _zend_ce_type_error = Module["_zend_ce_type_error"] = 1273604;
+var _zend_ce_type_error = Module["_zend_ce_type_error"] = 1269316;
 
-var _zend_ce_argument_count_error = Module["_zend_ce_argument_count_error"] = 1273608;
+var _zend_ce_argument_count_error = Module["_zend_ce_argument_count_error"] = 1269320;
 
-var _zend_dtrace_enabled = Module["_zend_dtrace_enabled"] = 1271616;
+var _zend_dtrace_enabled = Module["_zend_dtrace_enabled"] = 1267328;
 
-var _zend_signal_globals = Module["_zend_signal_globals"] = 1275904;
+var _zend_signal_globals = Module["_zend_signal_globals"] = 1271616;
 
-var _zend_observer_errors_observed = Module["_zend_observer_errors_observed"] = 1282610;
+var _zend_observer_errors_observed = Module["_zend_observer_errors_observed"] = 1278322;
 
-var _zend_ce_sensitive_parameter_value = Module["_zend_ce_sensitive_parameter_value"] = 1271696;
+var _zend_ce_sensitive_parameter_value = Module["_zend_ce_sensitive_parameter_value"] = 1267408;
 
-var _zend_ce_attribute = Module["_zend_ce_attribute"] = 1271700;
+var _zend_ce_attribute = Module["_zend_ce_attribute"] = 1267412;
 
-var _zend_ce_return_type_will_change_attribute = Module["_zend_ce_return_type_will_change_attribute"] = 1271748;
+var _zend_ce_return_type_will_change_attribute = Module["_zend_ce_return_type_will_change_attribute"] = 1267460;
 
-var _zend_ce_allow_dynamic_properties = Module["_zend_ce_allow_dynamic_properties"] = 1271752;
+var _zend_ce_allow_dynamic_properties = Module["_zend_ce_allow_dynamic_properties"] = 1267464;
 
-var _zend_ce_sensitive_parameter = Module["_zend_ce_sensitive_parameter"] = 1271756;
+var _zend_ce_sensitive_parameter = Module["_zend_ce_sensitive_parameter"] = 1267468;
 
-var _zend_ce_override = Module["_zend_ce_override"] = 1271860;
+var _zend_ce_override = Module["_zend_ce_override"] = 1267572;
 
-var _zend_pass_function = Module["_zend_pass_function"] = 1103136;
+var _zend_pass_function = Module["_zend_pass_function"] = 1101616;
 
-var _zend_ce_unhandled_match_error = Module["_zend_ce_unhandled_match_error"] = 1273728;
+var _zend_ce_unhandled_match_error = Module["_zend_ce_unhandled_match_error"] = 1269440;
 
-var _zend_touch_vm_stack_data = Module["_zend_touch_vm_stack_data"] = 1271864;
+var _zend_touch_vm_stack_data = Module["_zend_touch_vm_stack_data"] = 1267576;
 
-var _zend_ce_internal_iterator = Module["_zend_ce_internal_iterator"] = 1273484;
+var _zend_ce_internal_iterator = Module["_zend_ce_internal_iterator"] = 1269196;
 
-var _zend_ce_error_exception = Module["_zend_ce_error_exception"] = 1273712;
+var _zend_ce_error_exception = Module["_zend_ce_error_exception"] = 1269424;
 
-var _zend_ce_weakref = Module["_zend_ce_weakref"] = 1274600;
+var _zend_ce_weakref = Module["_zend_ce_weakref"] = 1270312;
 
-var _zend_ce_ClosedGeneratorException = Module["_zend_ce_ClosedGeneratorException"] = 1278136;
+var _zend_ce_ClosedGeneratorException = Module["_zend_ce_ClosedGeneratorException"] = 1273848;
 
-var _zend_inheritance_cache_get = Module["_zend_inheritance_cache_get"] = 1282372;
+var _zend_inheritance_cache_get = Module["_zend_inheritance_cache_get"] = 1278084;
 
-var _zend_inheritance_cache_add = Module["_zend_inheritance_cache_add"] = 1282376;
+var _zend_inheritance_cache_add = Module["_zend_inheritance_cache_add"] = 1278088;
 
-var ___jit_debug_descriptor = Module["___jit_debug_descriptor"] = 1158828;
+var ___jit_debug_descriptor = Module["___jit_debug_descriptor"] = 1157308;
 
-var _zend_system_id = Module["_zend_system_id"] = 1282768;
+var _zend_system_id = Module["_zend_system_id"] = 1278480;
 
-var _zend_ce_unit_enum = Module["_zend_ce_unit_enum"] = 1282816;
+var _zend_ce_unit_enum = Module["_zend_ce_unit_enum"] = 1278528;
 
-var _zend_ce_backed_enum = Module["_zend_ce_backed_enum"] = 1282820;
+var _zend_ce_backed_enum = Module["_zend_ce_backed_enum"] = 1278532;
 
-var _zend_enum_object_handlers = Module["_zend_enum_object_handlers"] = 1282824;
+var _zend_enum_object_handlers = Module["_zend_enum_object_handlers"] = 1278536;
 
-var _zend_func_info_rid = Module["_zend_func_info_rid"] = 1158992;
+var _zend_func_info_rid = Module["_zend_func_info_rid"] = 1157472;
 
-var _php_embed_module = Module["_php_embed_module"] = 1160284;
+var _php_embed_module = Module["_php_embed_module"] = 1158764;
 
-var _zip_algorithm_deflate_compress = Module["_zip_algorithm_deflate_compress"] = 1160432;
+var _zip_algorithm_deflate_compress = Module["_zip_algorithm_deflate_compress"] = 1158912;
 
-var _zip_algorithm_deflate_decompress = Module["_zip_algorithm_deflate_decompress"] = 1160472;
+var _zip_algorithm_deflate_decompress = Module["_zip_algorithm_deflate_decompress"] = 1158952;
 
-var __zip_err_str_count = Module["__zip_err_str_count"] = 1133432;
+var __zip_err_str_count = Module["__zip_err_str_count"] = 1131912;
 
-var __zip_err_str = Module["__zip_err_str"] = 1133152;
+var __zip_err_str = Module["__zip_err_str"] = 1131632;
 
-var __zip_err_details_count = Module["__zip_err_details_count"] = 1133600;
+var __zip_err_details_count = Module["__zip_err_details_count"] = 1132080;
 
-var __zip_err_details = Module["__zip_err_details"] = 1133440;
+var __zip_err_details = Module["__zip_err_details"] = 1131920;
 
-var ___environ = Module["___environ"] = 1298336;
+var ___environ = Module["___environ"] = 1294048;
 
-var ____environ = Module["____environ"] = 1298336;
+var ____environ = Module["____environ"] = 1294048;
 
-var __environ = Module["__environ"] = 1298336;
+var __environ = Module["__environ"] = 1294048;
 
-var _timezone = Module["_timezone"] = 1298320;
+var _timezone = Module["_timezone"] = 1294032;
 
-var _daylight = Module["_daylight"] = 1298324;
+var _daylight = Module["_daylight"] = 1294036;
 
-var _tzname = Module["_tzname"] = 1298328;
+var _tzname = Module["_tzname"] = 1294040;
 
-var ___sig_pending = Module["___sig_pending"] = 1286644;
+var ___sig_pending = Module["___sig_pending"] = 1282356;
 
-var ___sig_actions = Module["___sig_actions"] = 1287056;
+var ___sig_actions = Module["___sig_actions"] = 1282768;
 
-var ___THREW__ = Module["___THREW__"] = 1187524;
+var ___THREW__ = Module["___THREW__"] = 1183236;
 
-var ___threwValue = Module["___threwValue"] = 1187528;
+var ___threwValue = Module["___threwValue"] = 1183240;
 
-var ___start_em_js = Module["___start_em_js"] = 1161080;
+var ___start_em_js = Module["___start_em_js"] = 1159560;
 
-var ___stop_em_js = Module["___stop_em_js"] = 1162767;
+var ___stop_em_js = Module["___stop_em_js"] = 1160211;
 
 function invoke_iiii(index, a1, a2, a3) {
  var sp = stackSave();
