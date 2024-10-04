@@ -39,7 +39,7 @@ export async function onRequest(context)
 		return fetchResource;
 	}
 
-	const db   = context.env.db;
+	const db = context.env.db;
 	const _GET = Object.fromEntries(url.searchParams.entries());
 
 	const { readable, writable } = new TransformStream();
@@ -52,6 +52,8 @@ export async function onRequest(context)
 	const headers = new Headers;
 
 	headers.set('content-type', 'text/html');
+
+	console.log(db);
 
 	const php = new PhpWorker({
 		_GET, _POST, cfd1: { db },
