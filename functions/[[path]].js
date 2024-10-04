@@ -53,12 +53,6 @@ export async function onRequest(context)
 
 	headers.set('content-type', 'text/html');
 
-	return new Response(String(db), {
-		status: '200',
-		statusText: 'OK',
-		headers
-	});
-
 	const php = new PhpWorker({
 		_GET, _POST, cfd1: { db },
 		responseHeaders: headers,
