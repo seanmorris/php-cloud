@@ -71,8 +71,8 @@ export async function onRequest(context)
 	const r = await fetchResource;
 	const t = await r.text();
 
-	// const runPhp = php.run(t)
-	const runPhp = php.run(`<?php echo file_get_contents('https://jsonplaceholder.typicode.com/posts/1');`)
+	// const runPhp = php.run(`<?php echo file_get_contents('https://jsonplaceholder.typicode.com/posts/1');`)
+	const runPhp = php.run(t)
 		.then(() => Promise.all(writes))
 		.then(() => writer.close());
 
