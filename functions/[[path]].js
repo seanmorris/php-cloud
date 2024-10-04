@@ -2,10 +2,10 @@ import { PhpWorker } from '../PhpWorker.mjs';
 import WasmBinary from '../php-worker.mjs.wasm';
 
 const staticOrigins = {
-	'https://php-cloud-dev.pages.dev': 'https://seanmorris.github.io/php-static',
-	'https://php-cloud.pages.dev': 'https://seanmorris.github.io/php-static-dev',
+	'https://php-cloud.pages.dev':     'https://seanmorris.github.io/php-static',
+	'https://php-cloud-dev.pages.dev': 'https://seanmorris.github.io/php-static-dev',
+	'http://localhost:8788':           'https://seanmorris.github.io/php-static-dev',
 	// 'http://localhost:8788': 'http://localhost:8080',
-	'http://localhost:8788': 'https://seanmorris.github.io/php-static-dev',
 };
 
 export async function onRequest(context)
